@@ -1,14 +1,11 @@
 package runhistoryplus.patches;
 
 import basemod.abstracts.CustomSavable;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class NeowBonusLog implements CustomSavable<NeowBonusLog> {
-    private static final Logger logger = LogManager.getLogger(NeowBonusLog.class.getName());
     public static final String SaveKey = "NeowBonusLog";
 
     public static NeowBonusLog neowBonusLog;
@@ -33,11 +30,6 @@ public class NeowBonusLog implements CustomSavable<NeowBonusLog> {
 
     @Override
     public void onLoad(NeowBonusLog neowBonusLog) {
-        logger.info("Loading NeowBonusLog, " + (neowBonusLog == null ? "null" : "not null"));
-        if (neowBonusLog != null && !neowBonusLog.relicsObtained.isEmpty()) {
-            logger.info("NeowBonusLog relic obtained: " + neowBonusLog.relicsObtained.get(0));
-        }
-
         NeowBonusLog.neowBonusLog = neowBonusLog;
     }
 }

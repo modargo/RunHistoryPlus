@@ -126,7 +126,6 @@ public class NeowBonusRunHistoryPatch {
             hb.update();
             String text = getNeowBlessingDescription(__instance);
             if (hb.hovered && text != null) {
-                logger.info("hovered");
                 CardCrawlGame.cursor.changeType(GameCursor.CursorType.INSPECT);
                 float tipX = hb.x;
                 float tipY = hb.y - 40.0F * Settings.scale;
