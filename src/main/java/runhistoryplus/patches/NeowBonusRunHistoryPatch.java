@@ -1,0 +1,311 @@
+package runhistoryplus.patches;
+
+import basemod.ReflectionHacks;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.evacipated.cardcrawl.modthespire.lib.*;
+import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
+import com.megacrit.cardcrawl.core.CardCrawlGame;
+import com.megacrit.cardcrawl.core.GameCursor;
+import com.megacrit.cardcrawl.core.Settings;
+import com.megacrit.cardcrawl.helpers.*;
+import com.megacrit.cardcrawl.localization.CharacterStrings;
+import com.megacrit.cardcrawl.metrics.Metrics;
+import com.megacrit.cardcrawl.monsters.MonsterGroup;
+import com.megacrit.cardcrawl.neow.NeowReward;
+import com.megacrit.cardcrawl.relics.AbstractRelic;
+import com.megacrit.cardcrawl.rooms.AbstractRoom;
+import com.megacrit.cardcrawl.screens.runHistory.RunHistoryScreen;
+import com.megacrit.cardcrawl.screens.stats.RunData;
+import javassist.*;
+import javassist.expr.ExprEditor;
+import javassist.expr.MethodCall;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.lang.reflect.Field;
+import java.text.MessageFormat;
+
+public class NeowBonusRunHistoryPatch {
+    private static final Logger logger = LogManager.getLogger(NeowBonusRunHistoryPatch.class.getName());
+    private static final CharacterStrings BONUS_STRINGS = CardCrawlGame.languagePack.getCharacterString("Neow Reward");
+    private static final String[] BONUS_TEXT = BONUS_STRINGS.TEXT;
+    private static final String[] TOOLTIP_TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPathNodes").TEXT;
+    private static final String TEXT_GOLD_FORMAT = TOOLTIP_TEXT[17];
+    private static final String TEXT_OBTAIN_HEADER = TOOLTIP_TEXT[18];
+    private static final String TEXT_OBTAIN_TYPE_CARD = TOOLTIP_TEXT[22];
+    private static final String TEXT_OBTAIN_TYPE_RELIC = TOOLTIP_TEXT[23];
+    private static final String TEXT_OBTAIN_TYPE_POTION = TOOLTIP_TEXT[24];
+    private static final String TEXT_REMOVE_OPTION = TOOLTIP_TEXT[28];
+    private static final String TEXT_TOOK = TOOLTIP_TEXT[33];
+    private static final String TEXT_LOST = TOOLTIP_TEXT[34];
+    private static final String TEXT_GENERIC_MAX_HP_FORMAT = TOOLTIP_TEXT[35];
+    private static final String TEXT_GAINED = TOOLTIP_TEXT[37];
+    private static final String TEXT_EVENT_DAMAGE = TOOLTIP_TEXT[42];
+    private static final String TEXT_UPGRADED = TOOLTIP_TEXT[43];
+    private static final String TEXT_TRANSFORMED = TOOLTIP_TEXT[44];
+
+    @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
+    public static class NeowBonusField {
+        @SpireRawPatch
+        public static void addNeowBonus(CtBehavior ctBehavior) throws NotFoundException, CannotCompileException {
+            CtClass runData = ctBehavior.getDeclaringClass().getClassPool().get(RunData.class.getName());
+
+            String fieldSource = String.format("public %1$s neow_bonus_log;", NeowBonusLog.class.getName());
+
+            CtField field = CtField.make(fieldSource, runData);
+
+            runData.addField(field);
+        }
+    }
+
+    @SpirePatch(clz = RunHistoryScreen.class, method = SpirePatch.CLASS)
+    public static class NeowBonusHitboxField {
+        public static final SpireField<Hitbox> neowBonusHitbox = new SpireField<>(() -> null);
+    }
+
+    @SpirePatch(clz = RunHistoryScreen.class, method = SpirePatch.CONSTRUCTOR)
+    public static class InitializeNeowBonusHitbox {
+        @SpirePostfixPatch
+        public static void initializeNeowBonusHitbox(RunHistoryScreen __instance) {
+            NeowBonusHitboxField.neowBonusHitbox.set(__instance, new Hitbox(0, 0));
+        }
+    }
+
+    @SpirePatch(clz = RunHistoryScreen.class, method = "renderRunHistoryScreen")
+    public static class DisplayNeowBonus {
+        @SpireInsertPatch(locator = Locator.class, localvars = { "header2x", "yOffset"})
+        public static void displayNeowBonus(RunHistoryScreen __instance, SpriteBatch sb, float header2x, @ByRef float[] yOffset) throws NoSuchFieldException, IllegalAccessException {
+            RunData runData = ReflectionHacks.getPrivate(__instance, RunHistoryScreen.class, "viewedRun");
+            String headerText = "Neow:";
+            String neowBonusText = getNeowBonusText(NeowReward.NeowRewardType.valueOf(runData.neow_bonus), NeowReward.NeowRewardDrawback.valueOf(runData.neow_cost));
+
+            if (neowBonusText == null) {
+                return;
+            }
+
+            ReflectionHacks.RMethod renderSubHeadingWithMessageMethod = ReflectionHacks.privateMethod(RunHistoryScreen.class, "renderSubHeadingWithMessage", SpriteBatch.class, String.class, String.class, float.class, float.class);
+            renderSubHeadingWithMessageMethod.invoke(__instance, sb, headerText, neowBonusText, header2x, yOffset[0]);
+
+            Hitbox neowBonusHitbox = NeowBonusHitboxField.neowBonusHitbox.get(__instance);
+            float w1 = FontHelper.getSmartWidth(FontHelper.buttonLabelFont, headerText, 99999.0F, 0.0F);
+            float w2 = FontHelper.getSmartWidth(FontHelper.cardDescFont_N, neowBonusText, 99999.0F, 0.0F);
+            float width = w1 + w2;
+            neowBonusHitbox.resize(width, 40.0F);
+            neowBonusHitbox.move(header2x + width / 2.0F, yOffset[0]);
+            neowBonusHitbox.render(sb);
+
+            ReflectionHacks.RMethod screenPosY = ReflectionHacks.privateMethod(RunHistoryScreen.class, "screenPosY", float.class);
+            yOffset[0] = yOffset[0] - (float)screenPosY.invoke(__instance, 40.0F);
+        }
+
+        public static class Locator extends SpireInsertLocator {
+            public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
+                Matcher matcher = new Matcher.MethodCallMatcher(RunHistoryScreen.class, "renderRelics");
+                return LineFinder.findInOrder(ctMethodToPatch, matcher);
+            }
+        }
+    }
+
+    @SpirePatch(clz = RunHistoryScreen.class, method = "update")
+    public static class DisplayNeowBonusTooltip {
+        @SpirePostfixPatch
+        public static void displayNeowBonusTooltip(RunHistoryScreen __instance) throws NoSuchFieldException, IllegalAccessException {
+            Hitbox hb = NeowBonusHitboxField.neowBonusHitbox.get(__instance);
+            hb.update();
+            String text = getNeowBlessingDescription(__instance);
+            if (hb.hovered && text != null) {
+                logger.info("hovered");
+                CardCrawlGame.cursor.changeType(GameCursor.CursorType.INSPECT);
+                float tipX = hb.x;
+                float tipY = hb.y - 40.0F * Settings.scale;
+                String header = "Neow";
+                TipHelper.renderGenericTip(tipX, tipY, header, text);
+            }
+        }
+    }
+
+    @SpirePatch(clz = NeowReward.class, method = "activate")
+    public static class AddLoggingToNeowRewardActivate {
+        public static class AddLoggingToNeowRewardActivateExprEditor extends ExprEditor {
+            @Override
+            public void edit(MethodCall methodCall) throws CannotCompileException {
+                if (methodCall.getClassName().equals(AbstractRoom.class.getName()) && methodCall.getMethodName().equals("spawnRelicAndObtain")) {
+                    methodCall.replace(String.format("{ %1$s.logObtainRelic($3); $proceed($$); }", NeowBonusRunHistoryPatch.class.getName()));
+                }
+            }
+        }
+
+        @SpireInstrumentPatch
+        public static ExprEditor addLoggingToNeowRewardActivatePatch() {
+            return new AddLoggingToNeowRewardActivateExprEditor();
+        }
+    }
+
+    public static void logObtainRelic(AbstractRelic relic) {
+        NeowBonusLog.neowBonusLog = new NeowBonusLog();
+        NeowBonusLog.neowBonusLog.relicsObtained.add(relic.relicId);
+    }
+
+    @SpirePatch(clz = Metrics.class, method = "gatherAllData")
+    public static class GatherAllDataPatch {
+        @SpirePostfixPatch
+        public static void gatherAllDataPatch(Metrics __instance, boolean death, boolean trueVictor, MonsterGroup monsters) {
+                ReflectionHacks.privateMethod(Metrics.class, "addData", Object.class, Object.class)
+                        .invoke(__instance, "neow_bonus_log", NeowBonusLog.neowBonusLog);
+        }
+    }
+
+    private static String getNeowBonusText(NeowReward.NeowRewardType neowRewardType, NeowReward.NeowRewardDrawback neowCost) {
+        String rewardText = cleanupBonusString(getNeowRewardTypeText(neowRewardType));
+        if (rewardText == null) {
+            return null;
+        }
+        String costText = cleanupBonusString(getNeowCostText(neowCost));
+        String t1 = "{0}";
+        String t2 = "{0}, {1}";
+        return MessageFormat.format(costText == null ? t1 : t2, rewardText, costText);
+    }
+
+    private static String getNeowRewardTypeText(NeowReward.NeowRewardType neowRewardType) {
+        switch (neowRewardType) {
+            case THREE_CARDS:
+                return BONUS_TEXT[0];
+            case ONE_RANDOM_RARE_CARD:
+                return BONUS_TEXT[1];
+            case REMOVE_CARD:
+                return BONUS_TEXT[2];
+            case UPGRADE_CARD:
+                return BONUS_TEXT[3];
+            case TRANSFORM_CARD:
+                return BONUS_TEXT[4];
+            case THREE_SMALL_POTIONS:
+                return BONUS_TEXT[5];
+            case RANDOM_COMMON_RELIC:
+                return BONUS_TEXT[6];
+            case TEN_PERCENT_HP_BONUS:
+                return BONUS_TEXT[7] + "10%";
+            case HUNDRED_GOLD:
+                return BONUS_TEXT[8] + "100" + BONUS_TEXT[9];
+            case REMOVE_TWO:
+                return BONUS_TEXT[10];
+            case ONE_RARE_RELIC:
+                return BONUS_TEXT[11];
+            case THREE_RARE_CARDS:
+                return BONUS_TEXT[12];
+            case TWO_FIFTY_GOLD:
+                return BONUS_TEXT[13] + 250 + BONUS_TEXT[14];
+            case TRANSFORM_TWO_CARDS:
+                return BONUS_TEXT[15];
+            case TWENTY_PERCENT_HP_BONUS:
+                return BONUS_TEXT[16] + "20%";
+            case THREE_ENEMY_KILL:
+                return BONUS_TEXT[28];
+            case RANDOM_COLORLESS:
+                return BONUS_TEXT[30];
+            case RANDOM_COLORLESS_2:
+                return BONUS_TEXT[31];
+            case BOSS_RELIC:
+                return BONUS_STRINGS.UNIQUE_REWARDS[0];
+            default:
+                return neowRewardType.name();
+        }
+    }
+
+    private static String getNeowCostText(NeowReward.NeowRewardDrawback neowCost) {
+        if (neowCost == NeowReward.NeowRewardDrawback.NONE) {
+            return null;
+        }
+        switch (neowCost) {
+            case TEN_PERCENT_HP_LOSS:
+                return BONUS_TEXT[17] + "10%" + BONUS_TEXT[18];
+            case NO_GOLD:
+                return BONUS_TEXT[19];
+            case CURSE:
+                return BONUS_TEXT[20];
+            case PERCENT_DAMAGE:
+                return BONUS_TEXT[21] + "30%" + BONUS_TEXT[29];
+            default:
+                return neowCost.name();
+        }
+    }
+
+    private static String cleanupBonusString(String s) {
+        if (s == null) {
+            return null;
+        }
+        return s.replace("[ ", "")
+                .replace(" ]", "")
+                .replace("#g", "")
+                .replace("#r", "");
+    }
+
+    public static String getNeowBlessingDescription(RunHistoryScreen screen) throws NoSuchFieldException, IllegalAccessException {
+        RunData runData = ReflectionHacks.getPrivate(screen, RunHistoryScreen.class, "viewedRun");
+        Field field = runData.getClass().getField("neow_bonus_log");
+        NeowBonusLog neowBonusLog = (NeowBonusLog)field.get(runData);
+        if (neowBonusLog == null) {
+            return null;
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        String nl = " NL ";
+        String tab = " TAB ";
+
+        if (neowBonusLog.maxHpLost != 0) {
+            sb.append(nl).append(tab).append(TEXT_LOST).append(String.format(TEXT_GENERIC_MAX_HP_FORMAT, neowBonusLog.maxHpLost));
+        }
+
+        if (neowBonusLog.damageTaken != 0) {
+            sb.append(nl).append(tab).append(TEXT_TOOK).append(String.format(TEXT_EVENT_DAMAGE, neowBonusLog.damageTaken));
+        }
+
+        if (neowBonusLog.goldLost != 0) {
+            sb.append(nl).append(tab).append(TEXT_LOST).append(String.format(TEXT_GOLD_FORMAT, neowBonusLog.damageTaken));
+        }
+
+        if (neowBonusLog.maxHpGained != 0) {
+            sb.append(nl).append(tab).append(TEXT_GAINED).append(String.format(TEXT_GENERIC_MAX_HP_FORMAT, neowBonusLog.maxHpGained));
+        }
+
+        if (neowBonusLog.goldGained != 0) {
+            sb.append(nl).append(tab).append(TEXT_GAINED).append(String.format(TEXT_GOLD_FORMAT, neowBonusLog.goldGained));
+        }
+
+        for (String cardID : neowBonusLog.cardsRemoved) {
+            String cardName = CardLibrary.getCardNameFromMetricID(cardID);
+            sb.append(String.format(TEXT_REMOVE_OPTION, cardName));
+        }
+
+        for (String cardID : neowBonusLog.cardsUpgraded) {
+            String cardName = CardLibrary.getCardNameFromMetricID(cardID);
+            sb.append(String.format(TEXT_UPGRADED, cardName));
+        }
+
+        for (String cardID : neowBonusLog.cardsTransformed) {
+            String cardName = CardLibrary.getCardNameFromMetricID(cardID);
+            sb.append(String.format(TEXT_TRANSFORMED, cardName));
+        }
+
+        if (!neowBonusLog.cardsObtained.isEmpty() || !neowBonusLog.relicsObtained.isEmpty() || !neowBonusLog.potionsObtained.isEmpty()) {
+            sb.append(TEXT_OBTAIN_HEADER).append(nl);
+            for (String relicID : neowBonusLog.relicsObtained) {
+                String relicName = RelicLibrary.getRelic(relicID).name;
+                sb.append(tab).append(TEXT_OBTAIN_TYPE_RELIC).append(relicName).append(nl);
+            }
+            for (String cardID : neowBonusLog.cardsObtained) {
+                String cardName = CardLibrary.getCardNameFromMetricID(cardID);
+                sb.append(tab).append(TEXT_OBTAIN_TYPE_CARD).append(cardName).append(nl);
+            }
+            for (String potionID : neowBonusLog.potionsObtained) {
+                String potionName = PotionHelper.getPotion(potionID).name;
+                sb.append(tab).append(TEXT_OBTAIN_TYPE_POTION).append(potionName).append(nl);
+            }
+        }
+
+        String s = sb.toString();
+        if (s.endsWith(nl)) {
+            s = s.substring(0, s.length() - nl.length());
+        }
+        return s.length() != 0 ? s : null;
+    }
+}
