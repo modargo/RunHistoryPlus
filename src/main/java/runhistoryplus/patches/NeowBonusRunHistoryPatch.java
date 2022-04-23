@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
@@ -131,6 +132,12 @@ public class NeowBonusRunHistoryPatch {
 
     @SpirePatch(clz = NeowReward.class, method = "activate")
     public static class AddLoggingToNeowRewardActivate {
+
+        @SpirePrefixPatch
+        public static void setNeowBonusLog(NeowReward __instance) {
+            NeowBonusLog.neowBonusLog = new NeowBonusLog();
+        }
+
         public static class AddLoggingToNeowRewardActivateExprEditor extends ExprEditor {
             @Override
             public void edit(MethodCall methodCall) throws CannotCompileException {
@@ -171,39 +178,78 @@ public class NeowBonusRunHistoryPatch {
         }
     }
 
+    @SpirePatch(clz = NeowReward.class, method = "update")
+    public static class AddLoggingToNeowRewardUpdate {
+        public static class AddLoggingToNeowRewardUpdateExprEditor extends ExprEditor {
+            @Override
+            public void edit(MethodCall methodCall) throws CannotCompileException {
+                String className = methodCall.getClassName();
+                String methodName = methodCall.getMethodName();
+                if (className.equals(AbstractCard.class.getName()) && methodName.equals("upgrade")) {
+                    methodCall.replace(String.format("{ %1$s.logUpgradeCard($0); $proceed($$); }", NeowBonusRunHistoryPatch.class.getName()));
+                }
+                if (className.equals(CardGroup.class.getName()) && methodName.equals("removeCard")) {
+                    methodCall.replace(String.format("{ %1$s.logRemoveOrTransformCard($1, this.type); $proceed($$); }", NeowBonusRunHistoryPatch.class.getName()));
+                }
+            }
+
+            @Override
+            public void edit(NewExpr newExpr) throws CannotCompileException {
+                String className = newExpr.getClassName();
+                if (className.equals(ShowCardAndObtainEffect.class.getName())) {
+                    newExpr.replace(String.format("{ %1$s.logObtainCard($1); $_ = $proceed($$); }", NeowBonusRunHistoryPatch.class.getName()));
+                }
+            }
+        }
+
+        @SpireInstrumentPatch
+        public static ExprEditor addLoggingToNeowRewardUpdatePatch() {
+            return new AddLoggingToNeowRewardUpdateExprEditor();
+        }
+    }
+
     public static void logObtainCard(AbstractCard card) {
-        NeowBonusLog.neowBonusLog = new NeowBonusLog();
         NeowBonusLog.neowBonusLog.cardsObtained.add(card.cardID);
     }
 
     public static void logObtainRelic(AbstractRelic relic) {
-        NeowBonusLog.neowBonusLog = new NeowBonusLog();
         NeowBonusLog.neowBonusLog.relicsObtained.add(relic.relicId);
     }
 
     public static void logGainGold(int gold) {
-        NeowBonusLog.neowBonusLog = new NeowBonusLog();
         NeowBonusLog.neowBonusLog.goldGained = gold;
     }
 
     public static void logLoseGold(int gold) {
-        NeowBonusLog.neowBonusLog = new NeowBonusLog();
         NeowBonusLog.neowBonusLog.goldLost = gold;
     }
 
     public static void logGainMaxHp(int maxHp) {
-        NeowBonusLog.neowBonusLog = new NeowBonusLog();
         NeowBonusLog.neowBonusLog.maxHpGained = maxHp;
     }
 
     public static void logLoseMaxHp(int maxHp) {
-        NeowBonusLog.neowBonusLog = new NeowBonusLog();
         NeowBonusLog.neowBonusLog.maxHpLost = maxHp;
     }
 
     public static void logTakeDamage(int damage) {
-        NeowBonusLog.neowBonusLog = new NeowBonusLog();
         NeowBonusLog.neowBonusLog.damageTaken = damage;
+    }
+
+    public static void logUpgradeCard(AbstractCard card) {
+        NeowBonusLog.neowBonusLog.cardsUpgraded.add(card.cardID);
+    }
+
+    public static void logRemoveOrTransformCard(AbstractCard card, NeowReward.NeowRewardType rewardType) {
+        if (rewardType == NeowReward.NeowRewardType.REMOVE_CARD || rewardType == NeowReward.NeowRewardType.REMOVE_TWO) {
+            NeowBonusLog.neowBonusLog.cardsRemoved.add(card.cardID);
+        }
+        else if (rewardType == NeowReward.NeowRewardType.TRANSFORM_CARD || rewardType == NeowReward.NeowRewardType.TRANSFORM_TWO_CARDS){
+            NeowBonusLog.neowBonusLog.cardsTransformed.add(card.cardID);
+        }
+        else {
+            logger.error("Unrecognized rewardType for removing or transforming: " + rewardType.name());
+        }
     }
 
     @SpirePatch(clz = Metrics.class, method = "gatherAllData")
