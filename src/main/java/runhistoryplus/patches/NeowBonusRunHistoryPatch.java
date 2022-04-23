@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 
 public class NeowBonusRunHistoryPatch {
     private static final Logger logger = LogManager.getLogger(NeowBonusRunHistoryPatch.class.getName());
+    private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:NeowBonus").TEXT;
     private static final CharacterStrings BONUS_STRINGS = CardCrawlGame.languagePack.getCharacterString("Neow Reward");
     private static final String[] BONUS_TEXT = BONUS_STRINGS.TEXT;
     private static final String[] TOOLTIP_TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPathNodes").TEXT;
@@ -88,7 +89,7 @@ public class NeowBonusRunHistoryPatch {
         @SpireInsertPatch(locator = Locator.class, localvars = { "header2x", "yOffset"})
         public static void displayNeowBonus(RunHistoryScreen __instance, SpriteBatch sb, float header2x, @ByRef float[] yOffset) {
             RunData runData = ReflectionHacks.getPrivate(__instance, RunHistoryScreen.class, "viewedRun");
-            String headerText = "Neow:";
+            String headerText = TEXT[1];
             String neowBonusText = getNeowBonusText(NeowReward.NeowRewardType.valueOf(runData.neow_bonus), NeowReward.NeowRewardDrawback.valueOf(runData.neow_cost));
 
             if (neowBonusText == null) {
@@ -129,7 +130,7 @@ public class NeowBonusRunHistoryPatch {
                 CardCrawlGame.cursor.changeType(GameCursor.CursorType.INSPECT);
                 float tipX = hb.x;
                 float tipY = hb.y - 40.0F * Settings.scale;
-                String header = "Neow";
+                String header = TEXT[0];
                 TipHelper.renderGenericTip(tipX, tipY, header, text);
             }
         }
@@ -272,9 +273,7 @@ public class NeowBonusRunHistoryPatch {
             return null;
         }
         String costText = cleanupBonusString(getNeowCostText(neowCost));
-        String t1 = "{0}";
-        String t2 = "{0}, {1}";
-        return MessageFormat.format(costText == null ? t1 : t2, rewardText, costText);
+        return MessageFormat.format(costText == null ? TEXT[2] : TEXT[3], rewardText, costText);
     }
 
     private static String getNeowRewardTypeText(NeowReward.NeowRewardType neowRewardType) {
