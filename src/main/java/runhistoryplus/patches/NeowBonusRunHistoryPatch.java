@@ -4,6 +4,9 @@ import basemod.ReflectionHacks;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
+import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.DamageInfo;
+import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.GameCursor;
 import com.megacrit.cardcrawl.core.Settings;
@@ -16,9 +19,11 @@ import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.screens.runHistory.RunHistoryScreen;
 import com.megacrit.cardcrawl.screens.stats.RunData;
+import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndObtainEffect;
 import javassist.*;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
+import javassist.expr.NewExpr;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -129,8 +134,33 @@ public class NeowBonusRunHistoryPatch {
         public static class AddLoggingToNeowRewardActivateExprEditor extends ExprEditor {
             @Override
             public void edit(MethodCall methodCall) throws CannotCompileException {
-                if (methodCall.getClassName().equals(AbstractRoom.class.getName()) && methodCall.getMethodName().equals("spawnRelicAndObtain")) {
+                String className = methodCall.getClassName();
+                String methodName = methodCall.getMethodName();
+                if (className.equals(AbstractRoom.class.getName()) && methodName.equals("spawnRelicAndObtain")) {
                     methodCall.replace(String.format("{ %1$s.logObtainRelic($3); $proceed($$); }", NeowBonusRunHistoryPatch.class.getName()));
+                }
+                if (className.equals(AbstractPlayer.class.getName()) && methodName.equals("gainGold")) {
+                    methodCall.replace(String.format("{ %1$s.logGainGold($1); $proceed($$); }", NeowBonusRunHistoryPatch.class.getName()));
+                }
+                if (className.equals(AbstractPlayer.class.getName()) && methodName.equals("loseGold")) {
+                    methodCall.replace(String.format("{ %1$s.logLoseGold($1); $proceed($$); }", NeowBonusRunHistoryPatch.class.getName()));
+                }
+                if (className.equals(AbstractPlayer.class.getName()) && methodName.equals("increaseMaxHp")) {
+                    methodCall.replace(String.format("{ %1$s.logGainMaxHp($1); $proceed($$); }", NeowBonusRunHistoryPatch.class.getName()));
+                }
+                if (className.equals(AbstractPlayer.class.getName()) && methodName.equals("decreaseMaxHealth")) {
+                    methodCall.replace(String.format("{ %1$s.logLoseMaxHp($1); $proceed($$); }", NeowBonusRunHistoryPatch.class.getName()));
+                }
+            }
+
+            @Override
+            public void edit(NewExpr newExpr) throws CannotCompileException {
+                String className = newExpr.getClassName();
+                if (className.equals(ShowCardAndObtainEffect.class.getName())) {
+                    newExpr.replace(String.format("{ %1$s.logObtainCard($1); $_ = $proceed($$); }", NeowBonusRunHistoryPatch.class.getName()));
+                }
+                if (className.equals(DamageInfo.class.getName())) {
+                    newExpr.replace(String.format("{ %1$s.logTakeDamage($2); $_ = $proceed($$); }", NeowBonusRunHistoryPatch.class.getName()));
                 }
             }
         }
@@ -141,9 +171,39 @@ public class NeowBonusRunHistoryPatch {
         }
     }
 
+    public static void logObtainCard(AbstractCard card) {
+        NeowBonusLog.neowBonusLog = new NeowBonusLog();
+        NeowBonusLog.neowBonusLog.cardsObtained.add(card.cardID);
+    }
+
     public static void logObtainRelic(AbstractRelic relic) {
         NeowBonusLog.neowBonusLog = new NeowBonusLog();
         NeowBonusLog.neowBonusLog.relicsObtained.add(relic.relicId);
+    }
+
+    public static void logGainGold(int gold) {
+        NeowBonusLog.neowBonusLog = new NeowBonusLog();
+        NeowBonusLog.neowBonusLog.goldGained = gold;
+    }
+
+    public static void logLoseGold(int gold) {
+        NeowBonusLog.neowBonusLog = new NeowBonusLog();
+        NeowBonusLog.neowBonusLog.goldLost = gold;
+    }
+
+    public static void logGainMaxHp(int maxHp) {
+        NeowBonusLog.neowBonusLog = new NeowBonusLog();
+        NeowBonusLog.neowBonusLog.maxHpGained = maxHp;
+    }
+
+    public static void logLoseMaxHp(int maxHp) {
+        NeowBonusLog.neowBonusLog = new NeowBonusLog();
+        NeowBonusLog.neowBonusLog.maxHpLost = maxHp;
+    }
+
+    public static void logTakeDamage(int damage) {
+        NeowBonusLog.neowBonusLog = new NeowBonusLog();
+        NeowBonusLog.neowBonusLog.damageTaken = damage;
     }
 
     @SpirePatch(clz = Metrics.class, method = "gatherAllData")
