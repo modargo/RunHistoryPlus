@@ -86,7 +86,7 @@ public class NeowBonusRunHistoryPatch {
     @SpirePatch(clz = RunHistoryScreen.class, method = "renderRunHistoryScreen")
     public static class DisplayNeowBonus {
         @SpireInsertPatch(locator = Locator.class, localvars = { "header2x", "yOffset"})
-        public static void displayNeowBonus(RunHistoryScreen __instance, SpriteBatch sb, float header2x, @ByRef float[] yOffset) throws NoSuchFieldException, IllegalAccessException {
+        public static void displayNeowBonus(RunHistoryScreen __instance, SpriteBatch sb, float header2x, @ByRef float[] yOffset) {
             RunData runData = ReflectionHacks.getPrivate(__instance, RunHistoryScreen.class, "viewedRun");
             String headerText = "Neow:";
             String neowBonusText = getNeowBonusText(NeowReward.NeowRewardType.valueOf(runData.neow_bonus), NeowReward.NeowRewardDrawback.valueOf(runData.neow_cost));
