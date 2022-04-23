@@ -19,6 +19,7 @@ import com.megacrit.cardcrawl.neow.NeowReward;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.screens.runHistory.RunHistoryScreen;
+import com.megacrit.cardcrawl.screens.stats.CardChoiceStats;
 import com.megacrit.cardcrawl.screens.stats.RunData;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndObtainEffect;
 import javassist.*;
@@ -30,6 +31,10 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class NeowBonusRunHistoryPatch {
     private static final Logger logger = LogManager.getLogger(NeowBonusRunHistoryPatch.class.getName());
@@ -38,6 +43,7 @@ public class NeowBonusRunHistoryPatch {
     private static final String[] TOOLTIP_TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPathNodes").TEXT;
     private static final String TEXT_GOLD_FORMAT = TOOLTIP_TEXT[17];
     private static final String TEXT_OBTAIN_HEADER = TOOLTIP_TEXT[18];
+    private static final String TEXT_SKIP_HEADER = TOOLTIP_TEXT[19];
     private static final String TEXT_OBTAIN_TYPE_CARD = TOOLTIP_TEXT[22];
     private static final String TEXT_OBTAIN_TYPE_RELIC = TOOLTIP_TEXT[23];
     private static final String TEXT_OBTAIN_TYPE_POTION = TOOLTIP_TEXT[24];
@@ -350,61 +356,76 @@ public class NeowBonusRunHistoryPatch {
         Field field = runData.getClass().getField("neow_bonus_log");
         NeowBonusLog neowBonusLog = (NeowBonusLog)field.get(runData);
         if (neowBonusLog == null) {
-            return null;
+            neowBonusLog = new NeowBonusLog();
         }
+
+        List<CardChoiceStats> neowCardChoices = runData.card_choices.stream().filter(cc -> cc.floor == 0).collect(Collectors.toList());
+        List<String> neowCardsObtained = neowCardChoices.stream().map(cc -> cc.picked).collect(Collectors.toList());
+        List<String> allCardsObtained = new ArrayList<>();
+        allCardsObtained.addAll(neowBonusLog.cardsObtained);
+        allCardsObtained.addAll(neowCardsObtained);
+        List<String> neowCardsNotTaken = neowCardChoices.stream().map(cc -> cc.not_picked).flatMap(Collection::stream).collect(Collectors.toList());
         
         StringBuilder sb = new StringBuilder();
         String nl = " NL ";
         String tab = " TAB ";
 
         if (neowBonusLog.maxHpLost != 0) {
-            sb.append(nl).append(tab).append(TEXT_LOST).append(String.format(TEXT_GENERIC_MAX_HP_FORMAT, neowBonusLog.maxHpLost));
+            sb.append(TEXT_LOST).append(String.format(TEXT_GENERIC_MAX_HP_FORMAT, neowBonusLog.maxHpLost)).append(nl);
         }
 
         if (neowBonusLog.damageTaken != 0) {
-            sb.append(nl).append(tab).append(TEXT_TOOK).append(String.format(TEXT_EVENT_DAMAGE, neowBonusLog.damageTaken));
+            sb.append(TEXT_TOOK).append(String.format(TEXT_EVENT_DAMAGE, neowBonusLog.damageTaken)).append(nl);
         }
 
         if (neowBonusLog.goldLost != 0) {
-            sb.append(nl).append(tab).append(TEXT_LOST).append(String.format(TEXT_GOLD_FORMAT, neowBonusLog.damageTaken));
+            sb.append(TEXT_LOST).append(String.format(TEXT_GOLD_FORMAT, neowBonusLog.damageTaken)).append(nl);
         }
 
         if (neowBonusLog.maxHpGained != 0) {
-            sb.append(nl).append(tab).append(TEXT_GAINED).append(String.format(TEXT_GENERIC_MAX_HP_FORMAT, neowBonusLog.maxHpGained));
+            sb.append(TEXT_GAINED).append(String.format(TEXT_GENERIC_MAX_HP_FORMAT, neowBonusLog.maxHpGained)).append(nl);
         }
 
         if (neowBonusLog.goldGained != 0) {
-            sb.append(nl).append(tab).append(TEXT_GAINED).append(String.format(TEXT_GOLD_FORMAT, neowBonusLog.goldGained));
+            sb.append(TEXT_GAINED).append(String.format(TEXT_GOLD_FORMAT, neowBonusLog.goldGained)).append(nl);
         }
 
         for (String cardID : neowBonusLog.cardsRemoved) {
             String cardName = CardLibrary.getCardNameFromMetricID(cardID);
-            sb.append(String.format(TEXT_REMOVE_OPTION, cardName));
+            sb.append(String.format(TEXT_REMOVE_OPTION, cardName)).append(nl);
         }
 
         for (String cardID : neowBonusLog.cardsUpgraded) {
             String cardName = CardLibrary.getCardNameFromMetricID(cardID);
-            sb.append(String.format(TEXT_UPGRADED, cardName));
+            sb.append(String.format(TEXT_UPGRADED, cardName)).append(nl);
         }
 
         for (String cardID : neowBonusLog.cardsTransformed) {
             String cardName = CardLibrary.getCardNameFromMetricID(cardID);
-            sb.append(String.format(TEXT_TRANSFORMED, cardName));
+            sb.append(String.format(TEXT_TRANSFORMED, cardName)).append(nl);
         }
 
-        if (!neowBonusLog.cardsObtained.isEmpty() || !neowBonusLog.relicsObtained.isEmpty() || !neowBonusLog.potionsObtained.isEmpty()) {
+        if (!allCardsObtained.isEmpty() || !neowCardsObtained.isEmpty() || !neowBonusLog.relicsObtained.isEmpty() || !neowBonusLog.potionsObtained.isEmpty()) {
             sb.append(TEXT_OBTAIN_HEADER).append(nl);
             for (String relicID : neowBonusLog.relicsObtained) {
                 String relicName = RelicLibrary.getRelic(relicID).name;
                 sb.append(tab).append(TEXT_OBTAIN_TYPE_RELIC).append(relicName).append(nl);
             }
-            for (String cardID : neowBonusLog.cardsObtained) {
+            for (String cardID : allCardsObtained) {
                 String cardName = CardLibrary.getCardNameFromMetricID(cardID);
                 sb.append(tab).append(TEXT_OBTAIN_TYPE_CARD).append(cardName).append(nl);
             }
             for (String potionID : neowBonusLog.potionsObtained) {
                 String potionName = PotionHelper.getPotion(potionID).name;
                 sb.append(tab).append(TEXT_OBTAIN_TYPE_POTION).append(potionName).append(nl);
+            }
+        }
+
+        if (!neowCardsNotTaken.isEmpty()) {
+            sb.append(TEXT_SKIP_HEADER).append(nl);
+            for (String cardID : neowCardsNotTaken) {
+                String cardName = CardLibrary.getCardNameFromMetricID(cardID);
+                sb.append(tab).append(TEXT_OBTAIN_TYPE_CARD).append(cardName).append(nl);
             }
         }
 
