@@ -11,6 +11,8 @@ import com.megacrit.cardcrawl.localization.UIStrings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import runhistoryplus.patches.NeowBonusLog;
+import runhistoryplus.patches.PotionUseLog;
+import runhistoryplus.subscribers.PotionUseAddLoggingSubscriber;
 
 import static com.megacrit.cardcrawl.core.Settings.GameLanguage;
 import static com.megacrit.cardcrawl.core.Settings.language;
@@ -35,6 +37,9 @@ public class RunHistoryPlus implements
         BaseMod.registerModBadge(badgeTexture, "Run History Plus", "modargo", "Adds additional information to run history.", new ModPanel());
 
         BaseMod.addSaveField(NeowBonusLog.SaveKey, new NeowBonusLog());
+        BaseMod.addSaveField(PotionUseLog.SaveKey, new PotionUseLog());
+
+        BaseMod.subscribe(new PotionUseAddLoggingSubscriber());
     }
 
     private static String makeLocPath(Settings.GameLanguage language, String filename)

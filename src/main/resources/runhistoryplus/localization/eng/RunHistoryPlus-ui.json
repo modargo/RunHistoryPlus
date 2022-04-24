@@ -6,5 +6,10 @@
       "{0}",
       "{0}, {1}"
     ]
+  },
+  "RunHistoryPlus:PotionUse": {
+    "TEXT": [
+      "#yUsed: "
+    ]
   }
 }

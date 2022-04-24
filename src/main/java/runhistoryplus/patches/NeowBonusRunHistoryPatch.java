@@ -138,7 +138,6 @@ public class NeowBonusRunHistoryPatch {
 
     @SpirePatch(clz = NeowReward.class, method = "activate")
     public static class AddLoggingToNeowRewardActivate {
-
         @SpirePrefixPatch
         public static void setNeowBonusLog(NeowReward __instance) {
             NeowBonusLog.neowBonusLog = new NeowBonusLog();
