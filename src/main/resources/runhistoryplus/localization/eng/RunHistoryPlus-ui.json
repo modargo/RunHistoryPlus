@@ -11,5 +11,10 @@
     "TEXT": [
       "#yUsed: "
     ]
+  },
+  "RunHistoryPlus:BlueKeyRelicSkipped": {
+    "TEXT": [
+      "#ySkipped #yfor #ykey: "
+    ]
   }
 }

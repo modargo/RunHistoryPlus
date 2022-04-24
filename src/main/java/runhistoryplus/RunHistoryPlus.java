@@ -10,6 +10,7 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.localization.UIStrings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import runhistoryplus.patches.BlueKeyRelicSkippedLog;
 import runhistoryplus.patches.NeowBonusLog;
 import runhistoryplus.patches.PotionUseLog;
 import runhistoryplus.patches.ShopContentsLog;
@@ -37,6 +38,7 @@ public class RunHistoryPlus implements
         Texture badgeTexture = new Texture("runhistoryplus/images/RunHistoryPlusBadge.png");
         BaseMod.registerModBadge(badgeTexture, "Run History Plus", "modargo", "Adds additional information to run history.", new ModPanel());
 
+        BaseMod.addSaveField(BlueKeyRelicSkippedLog.SaveKey, new BlueKeyRelicSkippedLog());
         BaseMod.addSaveField(NeowBonusLog.SaveKey, new NeowBonusLog());
         BaseMod.addSaveField(PotionUseLog.SaveKey, new PotionUseLog());
         BaseMod.addSaveField(ShopContentsLog.SaveKey, new ShopContentsLog());
