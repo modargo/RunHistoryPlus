@@ -20,6 +20,7 @@ import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.screens.runHistory.RunHistoryScreen;
 import com.megacrit.cardcrawl.screens.stats.CardChoiceStats;
+import com.megacrit.cardcrawl.screens.stats.ObtainStats;
 import com.megacrit.cardcrawl.screens.stats.RunData;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndObtainEffect;
 import javassist.*;
@@ -362,6 +363,8 @@ public class NeowBonusRunHistoryPatch {
         allCardsObtained.addAll(neowBonusLog.cardsObtained);
         allCardsObtained.addAll(neowCardsObtained);
         List<String> neowCardsNotTaken = neowCardChoices.stream().map(cc -> cc.not_picked).flatMap(Collection::stream).collect(Collectors.toList());
+
+        List<String> neowPotionsObtained = runData.potions_obtained.stream().filter(po -> po.floor == 0).map(po -> po.key).collect(Collectors.toList());
         
         StringBuilder sb = new StringBuilder();
         String nl = " NL ";
@@ -402,7 +405,7 @@ public class NeowBonusRunHistoryPatch {
             sb.append(String.format(TEXT_TRANSFORMED, cardName)).append(nl);
         }
 
-        if (!allCardsObtained.isEmpty() || !neowCardsObtained.isEmpty() || !neowBonusLog.relicsObtained.isEmpty() || !neowBonusLog.potionsObtained.isEmpty()) {
+        if (!allCardsObtained.isEmpty() || !neowCardsObtained.isEmpty() || !neowBonusLog.relicsObtained.isEmpty() || !neowPotionsObtained.isEmpty()) {
             sb.append(TEXT_OBTAIN_HEADER).append(nl);
             for (String relicID : neowBonusLog.relicsObtained) {
                 String relicName = RelicLibrary.getRelic(relicID).name;
@@ -412,7 +415,7 @@ public class NeowBonusRunHistoryPatch {
                 String cardName = CardLibrary.getCardNameFromMetricID(cardID);
                 sb.append(tab).append(TEXT_OBTAIN_TYPE_CARD).append(cardName).append(nl);
             }
-            for (String potionID : neowBonusLog.potionsObtained) {
+            for (String potionID : neowPotionsObtained) {
                 String potionName = PotionHelper.getPotion(potionID).name;
                 sb.append(tab).append(TEXT_OBTAIN_TYPE_POTION).append(potionName).append(nl);
             }

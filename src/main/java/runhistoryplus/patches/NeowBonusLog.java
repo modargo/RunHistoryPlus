@@ -15,10 +15,9 @@ public class NeowBonusLog implements CustomSavable<NeowBonusLog> {
     public final List<String> cardsRemoved = new ArrayList<>();
     public final List<String> cardsTransformed = new ArrayList<>();
     public final List<String> relicsObtained = new ArrayList<>();
-    public final List<String> potionsObtained = new ArrayList<>();
+
     public int maxHpGained;
     public int goldGained;
-
     public int damageTaken;
     public int goldLost;
     public int maxHpLost;
