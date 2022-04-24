@@ -379,7 +379,7 @@ public class NeowBonusRunHistoryPatch {
         }
 
         if (neowBonusLog.goldLost != 0) {
-            sb.append(TEXT_LOST).append(String.format(TEXT_GOLD_FORMAT, neowBonusLog.damageTaken)).append(nl);
+            sb.append(TEXT_LOST).append(String.format(TEXT_GOLD_FORMAT, neowBonusLog.goldLost)).append(nl);
         }
 
         if (neowBonusLog.maxHpGained != 0) {
