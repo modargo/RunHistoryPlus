@@ -10,10 +10,7 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.localization.UIStrings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import runhistoryplus.patches.BlueKeyRelicSkippedLog;
-import runhistoryplus.patches.NeowBonusLog;
-import runhistoryplus.patches.PotionUseLog;
-import runhistoryplus.patches.ShopContentsLog;
+import runhistoryplus.patches.*;
 import runhistoryplus.subscribers.PotionUseAddLoggingSubscriber;
 
 import static com.megacrit.cardcrawl.core.Settings.GameLanguage;
@@ -41,6 +38,7 @@ public class RunHistoryPlus implements
         BaseMod.addSaveField(BlueKeyRelicSkippedLog.SaveKey, new BlueKeyRelicSkippedLog());
         BaseMod.addSaveField(NeowBonusLog.SaveKey, new NeowBonusLog());
         BaseMod.addSaveField(PotionUseLog.SaveKey, new PotionUseLog());
+        BaseMod.addSaveField(RewardsSkippedLog.SaveKey, new RewardsSkippedLog());
         BaseMod.addSaveField(ShopContentsLog.SaveKey, new ShopContentsLog());
 
         BaseMod.subscribe(new PotionUseAddLoggingSubscriber());

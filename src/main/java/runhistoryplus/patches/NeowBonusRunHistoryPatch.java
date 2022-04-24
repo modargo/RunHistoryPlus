@@ -20,7 +20,6 @@ import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.screens.runHistory.RunHistoryScreen;
 import com.megacrit.cardcrawl.screens.stats.CardChoiceStats;
-import com.megacrit.cardcrawl.screens.stats.ObtainStats;
 import com.megacrit.cardcrawl.screens.stats.RunData;
 import com.megacrit.cardcrawl.vfx.cardManip.ShowCardAndObtainEffect;
 import javassist.*;
