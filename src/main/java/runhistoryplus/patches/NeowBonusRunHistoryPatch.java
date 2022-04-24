@@ -364,6 +364,10 @@ public class NeowBonusRunHistoryPatch {
         List<String> neowCardsNotTaken = neowCardChoices.stream().map(cc -> cc.not_picked).flatMap(Collection::stream).collect(Collectors.toList());
 
         List<String> neowPotionsObtained = runData.potions_obtained.stream().filter(po -> po.floor == 0).map(po -> po.key).collect(Collectors.toList());
+
+        Field rewardsSkippedField = runData.getClass().getField("rewards_skipped");
+        List<RewardsSkippedLog> rewardsSkippedLog = (List<RewardsSkippedLog>)rewardsSkippedField.get(runData);
+        List<String> neowPotionsNotTaken = rewardsSkippedLog.stream().filter(r -> r.floor == 0).map(r -> r.potions).flatMap(Collection::stream).collect(Collectors.toList());
         
         StringBuilder sb = new StringBuilder();
         String nl = " NL ";
@@ -420,11 +424,15 @@ public class NeowBonusRunHistoryPatch {
             }
         }
 
-        if (!neowCardsNotTaken.isEmpty()) {
+        if (!neowCardsNotTaken.isEmpty() || !neowPotionsNotTaken.isEmpty()) {
             sb.append(TEXT_SKIP_HEADER).append(nl);
             for (String cardID : neowCardsNotTaken) {
                 String cardName = CardLibrary.getCardNameFromMetricID(cardID);
                 sb.append(tab).append(TEXT_OBTAIN_TYPE_CARD).append(cardName).append(nl);
+            }
+            for (String potionID : neowPotionsNotTaken) {
+                String potionName = PotionHelper.getPotion(potionID).name;
+                sb.append(tab).append(TEXT_OBTAIN_TYPE_POTION).append(potionName).append(nl);
             }
         }
 
