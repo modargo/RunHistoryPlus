@@ -71,12 +71,12 @@ public class RewardsSkippedLogRunHistoryPatch {
         @SpireInsertPatch(locator = Locator.class, localvars = { "data" })
         public static void rewardSkippedRefreshData(RunHistoryScreen __instance, RunData data) throws NoSuchFieldException, IllegalAccessException {
             Field field = data.getClass().getField("rewards_skipped");
-            List<LinkedTreeMap<String, Object>> shop_contents = (List<LinkedTreeMap<String, Object>>)field.get(data);
-            if (shop_contents == null) {
+            List<LinkedTreeMap<String, Object>> rewards_skipped = (List<LinkedTreeMap<String, Object>>)field.get(data);
+            if (rewards_skipped == null) {
                 return;
             }
             List<RewardsSkippedLog> l = new ArrayList<>();
-            for (LinkedTreeMap<String, Object> ltm : shop_contents) {
+            for (LinkedTreeMap<String, Object> ltm : rewards_skipped) {
                 RewardsSkippedLog log = new RewardsSkippedLog();
                 log.floor = ((Double)ltm.get("floor")).intValue();
                 log.relics = (List<String>)ltm.get("relics");
@@ -106,9 +106,9 @@ public class RewardsSkippedLogRunHistoryPatch {
         @SpireInsertPatch(locator = Locator.class, localvars = { "element", "floor" })
         public static void addRewardsSkippedData(RunHistoryPath __instance, RunData newData, RunPathElement element, int floor) throws NoSuchFieldException, IllegalAccessException {
             Field field = newData.getClass().getField("rewards_skipped");
-            List shop_contents = (List)field.get(newData);
-            if (shop_contents != null) {
-                List<RewardsSkippedLog> rewardsSkippedThisFloor = (List<RewardsSkippedLog>)shop_contents.stream()
+            List rewards_skipped = (List)field.get(newData);
+            if (rewards_skipped != null) {
+                List<RewardsSkippedLog> rewardsSkippedThisFloor = (List<RewardsSkippedLog>)rewards_skipped.stream()
                         .filter(rs -> rs instanceof RewardsSkippedLog)
                         .filter(rs -> ((RewardsSkippedLog)rs).floor == floor)
                         .collect(Collectors.toList());
