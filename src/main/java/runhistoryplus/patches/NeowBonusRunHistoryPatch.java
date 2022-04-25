@@ -348,6 +348,7 @@ public class NeowBonusRunHistoryPatch {
                 .replace("#r", "");
     }
 
+    @SuppressWarnings("unchecked")
     public static String getNeowBlessingDescription(RunHistoryScreen screen) throws NoSuchFieldException, IllegalAccessException {
         RunData runData = ReflectionHacks.getPrivate(screen, RunHistoryScreen.class, "viewedRun");
         Field field = runData.getClass().getField("neow_bonus_log");
@@ -367,7 +368,7 @@ public class NeowBonusRunHistoryPatch {
 
         Field rewardsSkippedField = runData.getClass().getField("rewards_skipped");
         List<RewardsSkippedLog> rewardsSkippedLog = (List<RewardsSkippedLog>)rewardsSkippedField.get(runData);
-        List<String> neowPotionsNotTaken = rewardsSkippedLog.stream().filter(r -> r.floor == 0).map(r -> r.potions).flatMap(Collection::stream).collect(Collectors.toList());
+        List<String> neowPotionsNotTaken = rewardsSkippedLog != null ? rewardsSkippedLog.stream().filter(r -> r.floor == 0).map(r -> r.potions).flatMap(Collection::stream).collect(Collectors.toList()) : new ArrayList<>();
         
         StringBuilder sb = new StringBuilder();
         String nl = " NL ";
