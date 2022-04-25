@@ -34,7 +34,7 @@ public class RewardsSkippedLogRunHistoryPatch {
     @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
     public static class RewardsSkippedLogRunDataField {
         @SpireRawPatch
-        public static void addShopContents(CtBehavior ctBehavior) throws NotFoundException, CannotCompileException {
+        public static void addRewardsSkipped(CtBehavior ctBehavior) throws NotFoundException, CannotCompileException {
             CtClass runData = ctBehavior.getDeclaringClass().getClassPool().get(RunData.class.getName());
 
             String fieldSource = "public java.util.List rewards_skipped;";
