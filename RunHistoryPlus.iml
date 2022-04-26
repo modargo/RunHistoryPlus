@@ -37,14 +37,5 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library name="Maven: com.evacipated.cardcrawl.mod:stslib:1.19.3">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib/StSLib.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
   </component>
 </module>

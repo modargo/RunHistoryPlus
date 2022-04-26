@@ -1,7 +1,6 @@
 package runhistoryplus.patches;
 
 import basemod.ReflectionHacks;
-import com.evacipated.cardcrawl.mod.stslib.patches.relicInterfaces.BetterOnUsePotionPatch;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
 import com.megacrit.cardcrawl.core.AbstractCreature;
