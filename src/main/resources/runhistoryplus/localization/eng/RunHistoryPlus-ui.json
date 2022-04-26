@@ -1,4 +1,9 @@
 {
+  "RunHistoryPlus:RunHistoryPlusModPanel": {
+    "TEXT": [
+      "Show time spent per floor"
+    ]
+  },
   "RunHistoryPlus:NeowBonus": {
     "TEXT": [
       "Neow",

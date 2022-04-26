@@ -13,6 +13,7 @@ import com.megacrit.cardcrawl.screens.runHistory.RunPathElement;
 import com.megacrit.cardcrawl.screens.stats.CharStat;
 import com.megacrit.cardcrawl.screens.stats.RunData;
 import javassist.*;
+import runhistoryplus.Config;
 
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
@@ -93,12 +94,14 @@ public class FloorExitPlaytimeRunHistoryPatch {
     public static class DisplayFloorExitPlaytimePatch {
         @SpireInsertPatch(locator = Locator.class, localvars = { "sb" })
         public static void displayFloorExitPlaytime(RunPathElement __instance, StringBuilder sb) {
-            Integer floorPlaytime = floorPlaytimeField.floorPlaytime.get(__instance);
-            if (floorPlaytime != null) {
-                if (sb.length() > 0) {
-                    sb.append(" NL ");
+            if (Config.timeSpentPerFloor()) {
+                Integer floorPlaytime = floorPlaytimeField.floorPlaytime.get(__instance);
+                if (floorPlaytime != null) {
+                    if (sb.length() > 0) {
+                        sb.append(" NL ");
+                    }
+                    sb.append(MessageFormat.format(TEXT[0], CharStat.formatHMSM(floorPlaytime)));
                 }
-                sb.append(MessageFormat.format(TEXT[0], CharStat.formatHMSM(floorPlaytime)));
             }
         }
 

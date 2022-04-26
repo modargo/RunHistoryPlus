@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import runhistoryplus.patches.*;
 import runhistoryplus.subscribers.PotionUseAddLoggingSubscriber;
+import runhistoryplus.ui.RunHistoryPlusModPanel;
 
 import static com.megacrit.cardcrawl.core.Settings.GameLanguage;
 import static com.megacrit.cardcrawl.core.Settings.language;
@@ -28,12 +29,13 @@ public class RunHistoryPlus implements
 
     public static void initialize() {
         new RunHistoryPlus();
+        Config.initialize();
     }
 
     @Override
     public void receivePostInitialize() {
         Texture badgeTexture = new Texture("runhistoryplus/images/RunHistoryPlusBadge.png");
-        BaseMod.registerModBadge(badgeTexture, "Run History Plus", "modargo", "Adds additional information to run history.", new ModPanel());
+        BaseMod.registerModBadge(badgeTexture, "Run History Plus", "modargo", "Adds additional information to run history.", new RunHistoryPlusModPanel());
 
         BaseMod.addSaveField(BlueKeyRelicSkippedLog.SaveKey, new BlueKeyRelicSkippedLog());
         BaseMod.addSaveField(FloorExitPlaytimeLog.SaveKey, new FloorExitPlaytimeLog());
