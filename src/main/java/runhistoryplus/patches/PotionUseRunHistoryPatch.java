@@ -61,7 +61,9 @@ public class PotionUseRunHistoryPatch {
         public static void nextRoomTransitionAddPotionEntryPatch(AbstractDungeon __instance, SaveFile saveFile) {
             boolean isLoadingPostCombatSave = CardCrawlGame.loadingSave && saveFile != null && saveFile.post_combat;
             if (!isLoadingPostCombatSave) {
-                PotionUseLog.potion_use_per_floor.add(new ArrayList<>());
+                if (PotionUseLog.potion_use_per_floor != null) {
+                    PotionUseLog.potion_use_per_floor.add(new ArrayList<>());
+                }
             }
         }
 
@@ -143,7 +145,9 @@ public class PotionUseRunHistoryPatch {
     public static class FairyPotionUseAddLoggingPatch {
         @SpirePostfixPatch
         public static void fairyPotionUseAddLogging(FairyPotion potion, AbstractCreature target) {
-            PotionUseLog.potion_use_per_floor.get(PotionUseLog.potion_use_per_floor.size() - 1).add(potion.ID);
+            if (PotionUseLog.potion_use_per_floor != null) {
+                PotionUseLog.potion_use_per_floor.get(PotionUseLog.potion_use_per_floor.size() - 1).add(potion.ID);
+            }
         }
     }
 

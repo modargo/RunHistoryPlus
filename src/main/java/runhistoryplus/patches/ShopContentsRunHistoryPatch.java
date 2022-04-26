@@ -170,17 +170,19 @@ public class ShopContentsRunHistoryPatch {
         public static void shopContentsAddLogging(AbstractDungeon __instance, SaveFile saveFile) {
             boolean isLoadingPostCombatSave = CardCrawlGame.loadingSave && saveFile != null && saveFile.post_combat;
             if (!isLoadingPostCombatSave && AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room instanceof ShopRoom) {
-                ShopScreen shopScreen = AbstractDungeon.shopScreen;
-                List<StoreRelic> relics = ReflectionHacks.getPrivate(shopScreen, ShopScreen.class, "relics");
-                List<StorePotion> potions = ReflectionHacks.getPrivate(shopScreen, ShopScreen.class, "potions");
-                ShopContentsLog shopContentsLog = new ShopContentsLog();
-                shopContentsLog.floor = AbstractDungeon.floorNum;
-                shopContentsLog.cards = new ArrayList<>();
-                shopContentsLog.relics = relics.stream().map(r -> r.relic.relicId).collect(Collectors.toList());
-                shopContentsLog.cards.addAll(shopScreen.coloredCards.stream().map(c -> c.cardID).collect(Collectors.toList()));
-                shopContentsLog.cards.addAll(shopScreen.colorlessCards.stream().map(c -> c.cardID).collect(Collectors.toList()));
-                shopContentsLog.potions = potions.stream().map(p -> p.potion.ID).collect(Collectors.toList());
-                ShopContentsLog.shopContentsLog.add(shopContentsLog);
+                if (ShopContentsLog.shopContentsLog != null) {
+                    ShopScreen shopScreen = AbstractDungeon.shopScreen;
+                    List<StoreRelic> relics = ReflectionHacks.getPrivate(shopScreen, ShopScreen.class, "relics");
+                    List<StorePotion> potions = ReflectionHacks.getPrivate(shopScreen, ShopScreen.class, "potions");
+                    ShopContentsLog shopContentsLog = new ShopContentsLog();
+                    shopContentsLog.floor = AbstractDungeon.floorNum;
+                    shopContentsLog.cards = new ArrayList<>();
+                    shopContentsLog.relics = relics.stream().map(r -> r.relic.relicId).collect(Collectors.toList());
+                    shopContentsLog.cards.addAll(shopScreen.coloredCards.stream().map(c -> c.cardID).collect(Collectors.toList()));
+                    shopContentsLog.cards.addAll(shopScreen.colorlessCards.stream().map(c -> c.cardID).collect(Collectors.toList()));
+                    shopContentsLog.potions = potions.stream().map(p -> p.potion.ID).collect(Collectors.toList());
+                    ShopContentsLog.shopContentsLog.add(shopContentsLog);
+                }
             }
         }
     }

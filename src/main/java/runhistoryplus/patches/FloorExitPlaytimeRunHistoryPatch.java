@@ -120,7 +120,9 @@ public class FloorExitPlaytimeRunHistoryPatch {
         public static void floorExitPlaytimeAddLogging(AbstractDungeon __instance, SaveFile saveFile) {
             boolean isLoadingPostCombatSave = CardCrawlGame.loadingSave && saveFile != null && saveFile.post_combat;
             if (!isLoadingPostCombatSave && AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room != null && AbstractDungeon.floorNum != 0) {
-                FloorExitPlaytimeLog.floorExitPlaytimeLog.add((int)CardCrawlGame.playtime);
+                if (FloorExitPlaytimeLog.floorExitPlaytimeLog != null) {
+                    FloorExitPlaytimeLog.floorExitPlaytimeLog.add((int)CardCrawlGame.playtime);
+                }
             }
         }
     }

@@ -11,6 +11,7 @@ import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.GameCursor;
 import com.megacrit.cardcrawl.core.Settings;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.*;
 import com.megacrit.cardcrawl.localization.CharacterStrings;
 import com.megacrit.cardcrawl.metrics.Metrics;
@@ -58,9 +59,9 @@ public class NeowBonusRunHistoryPatch {
     private static final String TEXT_TRANSFORMED = TOOLTIP_TEXT[44];
 
     @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
-    public static class NeowBonusField {
+    public static class NeowBonusLogField {
         @SpireRawPatch
-        public static void addNeowBonus(CtBehavior ctBehavior) throws NotFoundException, CannotCompileException {
+        public static void addNeowBonusLog(CtBehavior ctBehavior) throws NotFoundException, CannotCompileException {
             CtClass runData = ctBehavior.getDeclaringClass().getClassPool().get(RunData.class.getName());
 
             String fieldSource = String.format("public %1$s neow_bonus_log;", NeowBonusLog.class.getName());
@@ -68,6 +69,17 @@ public class NeowBonusRunHistoryPatch {
             CtField field = CtField.make(fieldSource, runData);
 
             runData.addField(field);
+        }
+    }
+
+    @SpirePatch(
+            clz = AbstractDungeon.class,
+            method = "generateSeeds"
+    )
+    public static class GenerateSeedsPatch {
+        @SpirePostfixPatch
+        public static void initializeNeowBonusLog() {
+            NeowBonusLog.neowBonusLog = null;
         }
     }
 

@@ -201,22 +201,24 @@ public class RewardsSkippedLogRunHistoryPatch {
         public static void rewardsSkippedAddLogging(AbstractDungeon __instance, SaveFile saveFile) {
             boolean isLoadingPostCombatSave = CardCrawlGame.loadingSave && saveFile != null && saveFile.post_combat;
             if (!isLoadingPostCombatSave && AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room != null) {
-                RewardsSkippedLog log = new RewardsSkippedLog();
-                log.floor = AbstractDungeon.floorNum;
-                log.relics = new ArrayList<>();
-                log.potions = new ArrayList<>();
-                for (RewardItem r : AbstractDungeon.combatRewardScreen.rewards) {
-                    if (!r.ignoreReward) {
-                        if (r.type == RewardItem.RewardType.RELIC) {
-                            log.relics.add(r.relic.relicId);
-                        }
-                        if (r.type == RewardItem.RewardType.POTION) {
-                            log.potions.add(r.potion.ID);
+                if (RewardsSkippedLog.rewardsSkippedLog != null) {
+                    RewardsSkippedLog log = new RewardsSkippedLog();
+                    log.floor = AbstractDungeon.floorNum;
+                    log.relics = new ArrayList<>();
+                    log.potions = new ArrayList<>();
+                    for (RewardItem r : AbstractDungeon.combatRewardScreen.rewards) {
+                        if (!r.ignoreReward) {
+                            if (r.type == RewardItem.RewardType.RELIC) {
+                                log.relics.add(r.relic.relicId);
+                            }
+                            if (r.type == RewardItem.RewardType.POTION) {
+                                log.potions.add(r.potion.ID);
+                            }
                         }
                     }
-                }
-                if (!log.relics.isEmpty() || !log.potions.isEmpty()) {
-                    RewardsSkippedLog.rewardsSkippedLog.add(log);
+                    if (!log.relics.isEmpty() || !log.potions.isEmpty()) {
+                        RewardsSkippedLog.rewardsSkippedLog.add(log);
+                    }
                 }
             }
         }
