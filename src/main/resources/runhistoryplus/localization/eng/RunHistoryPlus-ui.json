@@ -16,5 +16,10 @@
     "TEXT": [
       "#ySkipped #yfor #ykey: "
     ]
+  },
+  "RunHistoryPlus:FloorExitPlaytime": {
+    "TEXT": [
+      "#bTime #bspent: #b{0}"
+    ]
   }
 }

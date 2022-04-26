@@ -36,6 +36,7 @@ public class RunHistoryPlus implements
         BaseMod.registerModBadge(badgeTexture, "Run History Plus", "modargo", "Adds additional information to run history.", new ModPanel());
 
         BaseMod.addSaveField(BlueKeyRelicSkippedLog.SaveKey, new BlueKeyRelicSkippedLog());
+        BaseMod.addSaveField(FloorExitPlaytimeLog.SaveKey, new FloorExitPlaytimeLog());
         BaseMod.addSaveField(NeowBonusLog.SaveKey, new NeowBonusLog());
         BaseMod.addSaveField(PotionUseLog.SaveKey, new PotionUseLog());
         BaseMod.addSaveField(RewardsSkippedLog.SaveKey, new RewardsSkippedLog());
