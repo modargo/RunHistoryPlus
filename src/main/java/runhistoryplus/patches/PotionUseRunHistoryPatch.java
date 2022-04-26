@@ -1,13 +1,16 @@
 package runhistoryplus.patches;
 
 import basemod.ReflectionHacks;
+import com.evacipated.cardcrawl.mod.stslib.patches.relicInterfaces.BetterOnUsePotionPatch;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
+import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.PotionHelper;
 import com.megacrit.cardcrawl.metrics.Metrics;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
+import com.megacrit.cardcrawl.potions.FairyPotion;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import com.megacrit.cardcrawl.screens.runHistory.RunHistoryPath;
@@ -136,4 +139,13 @@ public class PotionUseRunHistoryPatch {
             }
         }
     }
+
+    @SpirePatch(clz = FairyPotion.class, method = "use", paramtypez = { AbstractCreature.class })
+    public static class FairyPotionUseAddLoggingPatch {
+        @SpirePostfixPatch
+        public static void fairyPotionUseAddLogging(FairyPotion potion, AbstractCreature target) {
+            PotionUseLog.potion_use_per_floor.get(PotionUseLog.potion_use_per_floor.size() - 1).add(potion.ID);
+        }
+    }
+
 }
