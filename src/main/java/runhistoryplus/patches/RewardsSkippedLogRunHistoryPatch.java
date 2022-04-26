@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RewardsSkippedLogRunHistoryPatch {
     private static final String[] TOOLTIP_TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPathNodes").TEXT;
@@ -125,6 +126,44 @@ public class RewardsSkippedLogRunHistoryPatch {
                 return LineFinder.findInOrder(ctMethodToPatch, Collections.singletonList(matcher), finalMatcher);
             }
         }
+    }
+
+    @SpirePatch(clz = RunHistoryPath.class, method = "setRunData")
+    public static class AddBossRelicsSkippedDataPatch {
+        @SpireInsertPatch(locator = Locator.class, localvars = { "element", "floor", "bossRelicChoiceIndex" })
+        public static void addRewardsSkippedData(RunHistoryPath __instance, RunData newData, RunPathElement element, int floor, int bossRelicChoiceIndex) throws NoSuchFieldException, IllegalAccessException {
+            List<String> bossRelicsSkipped = newData.boss_relics.get(bossRelicChoiceIndex).not_picked;
+            if (bossRelicsSkipped != null) {
+                RewardsSkippedLog log = new RewardsSkippedLog();
+                log.floor = floor;
+                log.relics = bossRelicsSkipped;
+                log.potions = new ArrayList<>();
+                addRewardsSkipped(element, log);
+            }
+        }
+
+        public static class Locator extends SpireInsertLocator {
+            public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
+                Matcher matcher = new Matcher.FieldAccessMatcher(RunData.class, "boss_relics");
+                Matcher finalMatcher = new Matcher.MethodCallMatcher(RunPathElement.class, "addRelicObtainStats");
+                return LineFinder.findInOrder(ctMethodToPatch, Collections.singletonList(matcher), finalMatcher);
+            }
+        }
+    }
+
+    private static void addRewardsSkipped(RunPathElement element, RewardsSkippedLog log) {
+        RewardsSkippedLog existing = RewardsSkippedField.rewardsSkipped.get(element);
+        RewardsSkippedLog newLog;
+        if (existing == null) {
+            newLog = log;
+        }
+        else {
+            newLog = new RewardsSkippedLog();
+            newLog.floor = log.floor;
+            newLog.relics = Stream.concat(existing.relics.stream(), log.relics.stream()).collect(Collectors.toList());
+            newLog.potions = Stream.concat(existing.potions.stream(), log.potions.stream()).collect(Collectors.toList());
+        }
+        RewardsSkippedField.rewardsSkipped.set(element, newLog);
     }
 
     @SpirePatch(clz = RunPathElement.class, method = "getTipDescriptionText")
