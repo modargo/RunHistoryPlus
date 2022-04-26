@@ -21,7 +21,7 @@ import java.util.List;
 public class BlueKeyRelicSkippedRunHistoryPatch {
     private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:BlueKeyRelicSkipped").TEXT;
     private static final String[] TOOLTIP_TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPathNodes").TEXT;
-    private static final String TEXT_OBTAIN_TYPE_RELIC = TOOLTIP_TEXT[23];;
+    private static final String TEXT_OBTAIN_TYPE_RELIC = TOOLTIP_TEXT[23];
 
     @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
     public static class BlueKeyRelicSkippedLogRunDataField {
