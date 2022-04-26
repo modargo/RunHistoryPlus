@@ -107,8 +107,9 @@ public class FloorExitPlaytimeRunHistoryPatch {
 
         public static class Locator extends SpireInsertLocator {
             public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
-                Matcher matcher = new Matcher.FieldAccessMatcher(RunPathElement.class, "eventStats");
-                return LineFinder.findInOrder(ctMethodToPatch, matcher);
+                Matcher matcher = new Matcher.FieldAccessMatcher(RunPathElement.class, "shopPurges");
+                Matcher finalMatcher = new Matcher.FieldAccessMatcher(RunPathElement.class, "cachedTooltip");
+                return LineFinder.findInOrder(ctMethodToPatch, Collections.singletonList(matcher), finalMatcher);
             }
         }
     }
