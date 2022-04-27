@@ -102,7 +102,9 @@ public class NeowBonusRunHistoryPatch {
         public static void displayNeowBonus(RunHistoryScreen __instance, SpriteBatch sb, float header2x, @ByRef float[] yOffset) {
             RunData runData = ReflectionHacks.getPrivate(__instance, RunHistoryScreen.class, "viewedRun");
             String headerText = TEXT[1];
-            String neowBonusText = getNeowBonusText(NeowReward.NeowRewardType.valueOf(runData.neow_bonus), NeowReward.NeowRewardDrawback.valueOf(runData.neow_cost));
+            NeowReward.NeowRewardType rewardType = runData.neow_bonus != null && !runData.neow_bonus.equals("") ? NeowReward.NeowRewardType.valueOf(runData.neow_bonus) : null;
+            NeowReward.NeowRewardDrawback cost = runData.neow_cost != null && !runData.neow_cost.equals("")  ? NeowReward.NeowRewardDrawback.valueOf(runData.neow_cost) : null;
+            String neowBonusText = getNeowBonusText(rewardType, cost);
 
             if (neowBonusText == null) {
                 return;
@@ -279,6 +281,9 @@ public class NeowBonusRunHistoryPatch {
     }
 
     private static String getNeowBonusText(NeowReward.NeowRewardType neowRewardType, NeowReward.NeowRewardDrawback neowCost) {
+        if (neowRewardType == null || neowCost == null) {
+            return null;
+        }
         String rewardText = cleanupBonusString(getNeowRewardTypeText(neowRewardType));
         if (rewardText == null) {
             return null;
