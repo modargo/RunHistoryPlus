@@ -199,8 +199,8 @@ public class RewardsSkippedLogRunHistoryPatch {
     public static class RewardsSkippedAddLogging {
         @SpirePrefixPatch
         public static void rewardsSkippedAddLogging(AbstractDungeon __instance, SaveFile saveFile) {
-            boolean isLoadingPostCombatSave = CardCrawlGame.loadingSave && saveFile != null && saveFile.post_combat;
-            if (!isLoadingPostCombatSave && AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room != null) {
+            boolean isLoadingSave = CardCrawlGame.loadingSave && saveFile != null;
+            if (!isLoadingSave && AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room != null) {
                 if (RewardsSkippedLog.rewardsSkippedLog != null) {
                     RewardsSkippedLog log = new RewardsSkippedLog();
                     log.floor = AbstractDungeon.floorNum;

@@ -168,8 +168,8 @@ public class ShopContentsRunHistoryPatch {
     public static class ShopContentsAddLogging {
         @SpirePrefixPatch
         public static void shopContentsAddLogging(AbstractDungeon __instance, SaveFile saveFile) {
-            boolean isLoadingPostCombatSave = CardCrawlGame.loadingSave && saveFile != null && saveFile.post_combat;
-            if (!isLoadingPostCombatSave && AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room instanceof ShopRoom) {
+            boolean isLoadingSave = CardCrawlGame.loadingSave && saveFile != null;
+            if (!isLoadingSave && AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room instanceof ShopRoom) {
                 if (ShopContentsLog.shopContentsLog != null) {
                     ShopScreen shopScreen = AbstractDungeon.shopScreen;
                     List<StoreRelic> relics = ReflectionHacks.getPrivate(shopScreen, ShopScreen.class, "relics");

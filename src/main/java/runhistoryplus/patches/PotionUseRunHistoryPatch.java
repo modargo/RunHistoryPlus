@@ -59,8 +59,8 @@ public class PotionUseRunHistoryPatch {
     public static class NextRoomTransitionAddPotionEntryPatch {
         @SpireInsertPatch(locator = Locator.class)
         public static void nextRoomTransitionAddPotionEntryPatch(AbstractDungeon __instance, SaveFile saveFile) {
-            boolean isLoadingPostCombatSave = CardCrawlGame.loadingSave && saveFile != null && saveFile.post_combat;
-            if (!isLoadingPostCombatSave) {
+            boolean isLoadingSave = CardCrawlGame.loadingSave && saveFile != null;
+            if (!isLoadingSave) {
                 if (PotionUseLog.potion_use_per_floor != null) {
                     PotionUseLog.potion_use_per_floor.add(new ArrayList<>());
                 }

@@ -118,8 +118,8 @@ public class FloorExitPlaytimeRunHistoryPatch {
     public static class FloorExitPlaytimeAddLogging {
         @SpirePrefixPatch
         public static void floorExitPlaytimeAddLogging(AbstractDungeon __instance, SaveFile saveFile) {
-            boolean isLoadingPostCombatSave = CardCrawlGame.loadingSave && saveFile != null && saveFile.post_combat;
-            if (!isLoadingPostCombatSave && AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room != null && AbstractDungeon.floorNum != 0) {
+            boolean isLoadingSave = CardCrawlGame.loadingSave && saveFile != null;
+            if (!isLoadingSave && AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room != null && AbstractDungeon.floorNum != 0) {
                 if (FloorExitPlaytimeLog.floorExitPlaytimeLog != null) {
                     FloorExitPlaytimeLog.floorExitPlaytimeLog.add((int)CardCrawlGame.playtime);
                 }
