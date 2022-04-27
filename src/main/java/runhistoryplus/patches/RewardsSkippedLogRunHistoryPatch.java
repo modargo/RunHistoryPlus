@@ -114,7 +114,7 @@ public class RewardsSkippedLogRunHistoryPatch {
                         .filter(rs -> ((RewardsSkippedLog)rs).floor == floor)
                         .collect(Collectors.toList());
                 if (!rewardsSkippedThisFloor.isEmpty()) {
-                    RewardsSkippedField.rewardsSkipped.set(element, rewardsSkippedThisFloor.get(0));
+                    addRewardsSkipped(element, rewardsSkippedThisFloor.get(0));
                 }
             }
         }
