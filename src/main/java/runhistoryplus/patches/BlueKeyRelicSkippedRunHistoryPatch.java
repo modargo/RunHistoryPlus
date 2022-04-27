@@ -29,7 +29,7 @@ public class BlueKeyRelicSkippedRunHistoryPatch {
         public static void addBlueKeyRelicSkippedLog(CtBehavior ctBehavior) throws NotFoundException, CannotCompileException {
             CtClass runData = ctBehavior.getDeclaringClass().getClassPool().get(RunData.class.getName());
 
-            String fieldSource = "public runhistoryplus.patches.BlueKeyRelicSkippedLog blue_key_relic_skipped_log;";
+            String fieldSource = String.format("public %1$s blue_key_relic_skipped_log;", BlueKeyRelicSkippedLog.class.getName());
 
             CtField field = CtField.make(fieldSource, runData);
 
