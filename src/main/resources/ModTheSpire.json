@@ -3,7 +3,7 @@
   "name": "Run History Plus",
   "author_list": ["modargo"],
   "description": "Adds additional information to run history.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "sts_version": "03-07-2022",
   "mts_version": "3.15.0",
   "dependencies": ["basemod"]
