@@ -13,7 +13,10 @@ import com.megacrit.cardcrawl.screens.runHistory.RunPathElement;
 import com.megacrit.cardcrawl.screens.stats.CharStat;
 import com.megacrit.cardcrawl.screens.stats.RunData;
 import javassist.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import runhistoryplus.Config;
+import runhistoryplus.RunHistoryPlus;
 
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
@@ -23,6 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class FloorExitPlaytimeRunHistoryPatch {
+    private static final Logger logger = LogManager.getLogger(FloorExitPlaytimeRunHistoryPatch.class.getName());
     private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:FloorExitPlaytime").TEXT;
 
     @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
@@ -122,6 +126,7 @@ public class FloorExitPlaytimeRunHistoryPatch {
             if (!isLoadingSave && AbstractDungeon.currMapNode != null && AbstractDungeon.currMapNode.room != null && AbstractDungeon.floorNum != 0) {
                 if (FloorExitPlaytimeLog.floorExitPlaytimeLog != null) {
                     FloorExitPlaytimeLog.floorExitPlaytimeLog.add((int)CardCrawlGame.playtime);
+                    logger.info("FloorExitPlaytimeLog.floorExitPlaytimeLog (floor " + AbstractDungeon.floorNum + ", entries " + FloorExitPlaytimeLog.floorExitPlaytimeLog.size() + "): " + FloorExitPlaytimeLog.floorExitPlaytimeLog.stream().map(Object::toString).collect(Collectors.joining(", ")));
                 }
             }
         }
