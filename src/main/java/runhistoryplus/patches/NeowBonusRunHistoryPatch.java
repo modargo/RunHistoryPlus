@@ -32,9 +32,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class NeowBonusRunHistoryPatch {
@@ -102,9 +100,7 @@ public class NeowBonusRunHistoryPatch {
         public static void displayNeowBonus(RunHistoryScreen __instance, SpriteBatch sb, float header2x, @ByRef float[] yOffset) {
             RunData runData = ReflectionHacks.getPrivate(__instance, RunHistoryScreen.class, "viewedRun");
             String headerText = TEXT[1];
-            NeowReward.NeowRewardType rewardType = runData.neow_bonus != null && !runData.neow_bonus.equals("") ? NeowReward.NeowRewardType.valueOf(runData.neow_bonus) : null;
-            NeowReward.NeowRewardDrawback cost = runData.neow_cost != null && !runData.neow_cost.equals("")  ? NeowReward.NeowRewardDrawback.valueOf(runData.neow_cost) : null;
-            String neowBonusText = getNeowBonusText(rewardType, cost);
+            String neowBonusText = getNeowBonusText(runData.neow_bonus, runData.neow_cost);
 
             if (neowBonusText == null) {
                 return;
@@ -280,15 +276,23 @@ public class NeowBonusRunHistoryPatch {
         }
     }
 
-    private static String getNeowBonusText(NeowReward.NeowRewardType neowRewardType, NeowReward.NeowRewardDrawback neowCost) {
-        if (neowRewardType == null || neowCost == null) {
+    private static final Map<String, NeowReward.NeowRewardType> rewardTypeMap = new HashMap<>();
+    private static final Map<String, NeowReward.NeowRewardDrawback> rewardCostMap = new HashMap<>();
+    static {
+        for (NeowReward.NeowRewardDrawback rewardCost : NeowReward.NeowRewardDrawback.values()) {
+            rewardCostMap.put(rewardCost.name(), rewardCost);
+        }
+        for (NeowReward.NeowRewardType rewardType : NeowReward.NeowRewardType.values()) {
+            rewardTypeMap.put(rewardType.name(), rewardType);
+        }
+    }
+
+    private static String getNeowBonusText(String neow_bonus, String neow_cost) {
+        if (neow_bonus == null || neow_bonus.equals("") || neow_cost == null || neow_cost.equals("")) {
             return null;
         }
-        String rewardText = cleanupBonusString(getNeowRewardTypeText(neowRewardType));
-        if (rewardText == null) {
-            return null;
-        }
-        String costText = cleanupBonusString(getNeowCostText(neowCost));
+        String rewardText = rewardTypeMap.containsKey(neow_bonus) ? cleanupBonusString(getNeowRewardTypeText(rewardTypeMap.get(neow_bonus))) : neow_bonus;
+        String costText = rewardCostMap.containsKey(neow_cost) ? cleanupBonusString(getNeowCostText(rewardCostMap.get(neow_cost))) : neow_cost;
         return MessageFormat.format(costText == null ? TEXT[2] : TEXT[3], rewardText, costText);
     }
 
