@@ -109,7 +109,7 @@ public class BlueKeyRelicSkippedRunHistoryPatch {
     public static class BlueKeyRelicSkippedAddLogging {
         @SpirePostfixPatch
         public static void blueKeyRelicSkippedAddLogging(RewardItem __instance) {
-            if (__instance.type == RewardItem.RewardType.SAPPHIRE_KEY && !__instance.ignoreReward) {
+            if (__instance.type == RewardItem.RewardType.SAPPHIRE_KEY && !__instance.ignoreReward && __instance.relicLink != null && __instance.relicLink.relic != null) {
                 BlueKeyRelicSkippedLog log = new BlueKeyRelicSkippedLog();
                 log.floor = AbstractDungeon.floorNum;
                 log.relicID = __instance.relicLink.relic.relicId;
