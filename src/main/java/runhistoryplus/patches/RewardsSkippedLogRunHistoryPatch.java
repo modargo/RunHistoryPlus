@@ -131,7 +131,7 @@ public class RewardsSkippedLogRunHistoryPatch {
     @SpirePatch(clz = RunHistoryPath.class, method = "setRunData")
     public static class AddBossRelicsSkippedDataPatch {
         @SpireInsertPatch(locator = Locator.class, localvars = { "element", "floor", "bossRelicChoiceIndex" })
-        public static void addRewardsSkippedData(RunHistoryPath __instance, RunData newData, RunPathElement element, int floor, int bossRelicChoiceIndex) throws NoSuchFieldException, IllegalAccessException {
+        public static void addRewardsSkippedData(RunHistoryPath __instance, RunData newData, RunPathElement element, int floor, int bossRelicChoiceIndex) {
             List<String> bossRelicsSkipped = newData.boss_relics.get(bossRelicChoiceIndex).not_picked;
             if (bossRelicsSkipped != null) {
                 RewardsSkippedLog log = new RewardsSkippedLog();
