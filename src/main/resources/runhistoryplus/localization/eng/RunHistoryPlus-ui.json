@@ -12,7 +12,7 @@
       "{0}, {1}"
     ]
   },
-  "RunHistoryPlus:PotionUse": {
+  "RunHistoryPlus:PotionUseAndDiscard": {
     "TEXT": [
       "#yUsed: ",
       "#yDiscarded: "
