@@ -14,7 +14,8 @@
   },
   "RunHistoryPlus:PotionUse": {
     "TEXT": [
-      "#yUsed: "
+      "#yUsed: ",
+      "#yDiscarded: "
     ]
   },
   "RunHistoryPlus:BlueKeyRelicSkipped": {

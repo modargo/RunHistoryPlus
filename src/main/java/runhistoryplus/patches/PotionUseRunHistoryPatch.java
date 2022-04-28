@@ -55,9 +55,9 @@ public class PotionUseRunHistoryPatch {
     }
 
     @SpirePatch(clz = AbstractDungeon.class, method = "nextRoomTransition", paramtypez = { SaveFile.class })
-    public static class NextRoomTransitionAddPotionEntryPatch {
+    public static class NextRoomTransitionAddPotionUseEntryPatch {
         @SpirePrefixPatch
-        public static void nextRoomTransitionAddPotionEntryPatch(AbstractDungeon __instance, SaveFile saveFile) {
+        public static void nextRoomTransitionAddPotionUseEntryPatch(AbstractDungeon __instance, SaveFile saveFile) {
             boolean isLoadingSave = CardCrawlGame.loadingSave && saveFile != null;
             if (!isLoadingSave) {
                 if (PotionUseLog.potion_use_per_floor != null) {
@@ -119,6 +119,16 @@ public class PotionUseRunHistoryPatch {
                 }
                 sb.append(TEXT[0]);
                 for (String potionID : potionUse) {
+                    sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_POTION).append(PotionHelper.getPotion(potionID).name);
+                }
+            }
+            List<String> potionDiscard = PotionDiscardRunHistoryPatch.PotionDiscardField.potionDiscard.get(__instance);
+            if (potionDiscard != null && !potionDiscard.isEmpty()) {
+                if (sb.length() > 0) {
+                    sb.append(" NL ");
+                }
+                sb.append(TEXT[1]);
+                for (String potionID : potionDiscard) {
                     sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_POTION).append(PotionHelper.getPotion(potionID).name);
                 }
             }
