@@ -31,5 +31,10 @@
     "TEXT": [
       "#yOther #yoptions:"
     ]
+  },
+  "RunHistoryPlus:MultipleCardRewards": {
+    "TEXT": [
+      " #y(#{0})"
+    ]
   }
 }
