@@ -71,13 +71,4 @@ public class RunHistoryPlus implements
             loadLocFiles(language);
         }
     }
-
-    public static String removeModId(String id) {
-        if (id.startsWith("RunHistoryPlus:")) {
-            return id.substring(id.indexOf(':') + 1);
-        } else {
-            logger.warn("Missing mod id on: " + id);
-            return id;
-        }
-    }
 }
