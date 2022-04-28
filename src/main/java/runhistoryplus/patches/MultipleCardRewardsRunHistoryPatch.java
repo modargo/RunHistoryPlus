@@ -19,28 +19,32 @@ import java.util.*;
 public class MultipleCardRewardsRunHistoryPatch {
     private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:MultipleCardRewards").TEXT;
     private static final String[] TOOLTIP_TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPathNodes").TEXT;
-    private static final String TEXT_SKIP_HEADER = TOOLTIP_TEXT[19];
     private static final String TEXT_SINGING_BOWL_CHOICE = TOOLTIP_TEXT[21];
     private static final String TEXT_OBTAIN_TYPE_CARD = TOOLTIP_TEXT[22];
     private static final String TEXT_OBTAIN_TYPE_SPECIAL = TOOLTIP_TEXT[25];
-    private static Map<Integer, List<CardChoiceStats>> cardChoicesByFloor;
 
     @SpirePatch(clz = RunPathElement.class, method = SpirePatch.CLASS)
     public static class CardChoicesField {
         public static final SpireField<List<CardChoiceStats>> cardChoiceStats = new SpireField<>(() -> null);
     }
 
+    @SpirePatch(clz = RunHistoryPath.class, method = SpirePatch.CLASS)
+    public static class CardChoicesByFloorField {
+        public static final SpireField<Map<Integer, List<CardChoiceStats>>> cardChoicesByFloor = new SpireField<>(() -> null);
+    }
+
     @SpirePatch(clz = RunHistoryPath.class, method = "setRunData")
     public static class CalculateCardChoicesByFloor {
         @SpireInsertPatch(locator = Locator.class)
         public static void calculateCardChoicesByFloor(RunHistoryPath __instance, RunData newData) {
-            cardChoicesByFloor = new HashMap<>();
+            Map<Integer, List<CardChoiceStats>> m = new HashMap<>();
             for (CardChoiceStats stats : newData.card_choices) {
-                if (!cardChoicesByFloor.containsKey(stats.floor)) {
-                    cardChoicesByFloor.put(stats.floor, new ArrayList<>());
+                if (!m.containsKey(stats.floor)) {
+                    m.put(stats.floor, new ArrayList<>());
                 }
-                cardChoicesByFloor.get(stats.floor).add(stats);
+                m.get(stats.floor).add(stats);
             }
+            CardChoicesByFloorField.cardChoicesByFloor.set(__instance, m);
         }
 
         public static class Locator extends SpireInsertLocator {
@@ -54,9 +58,10 @@ public class MultipleCardRewardsRunHistoryPatch {
     @SpirePatch(clz = RunHistoryPath.class, method = "setRunData")
     public static class AddCardChoicesData {
         @SpireInsertPatch(locator = Locator.class, localvars = { "element", "floor" })
-        public static void addCardChoicesData(RunHistoryPath __instance, RunData newData, RunPathElement element, int floor) throws NoSuchFieldException, IllegalAccessException {
-            if (cardChoicesByFloor != null && cardChoicesByFloor.containsKey(floor)) {
-                CardChoicesField.cardChoiceStats.set(element, cardChoicesByFloor.get(floor));
+        public static void addCardChoicesData(RunHistoryPath __instance, RunData newData, RunPathElement element, int floor) {
+            Map<Integer, List<CardChoiceStats>> m = CardChoicesByFloorField.cardChoicesByFloor.get(__instance);
+            if (m != null && m.containsKey(floor)) {
+                CardChoicesField.cardChoiceStats.set(element, m.get(floor));
             }
         }
 
@@ -79,12 +84,17 @@ public class MultipleCardRewardsRunHistoryPatch {
                 String className = fieldAccess.getClassName();
                 String fieldName = fieldAccess.getFieldName();
                 if (className.equals(CardChoiceStats.class.getName()) && fieldName.equals("picked")) {
+                    if (callCount == 0) {
+                        // For callCount 0, this causes showCards to be true if the full card pick data has any picked cards
+                        fieldAccess.replace(String.format("{ $_ = %1$s.hasAnyPickedCards(this) ? \"\" : \"SKIP\"; }", MultipleCardRewardsRunHistoryPatch.class.getName()));
+                    }
                     if (callCount == 1) {
+                        // This causes the if block that has the existing logic to not execute
                         fieldAccess.replace("{ $_ = \"\"; }");
                     }
                     callCount++;
                 }
-                if(className.equals(CardChoiceStats.class.getName()) && fieldName.equals("not_picked")) {
+                if (className.equals(CardChoiceStats.class.getName()) && fieldName.equals("not_picked")) {
                     fieldAccess.replace("{ $_ = new java.util.ArrayList(); }");
                 }
             }
@@ -96,31 +106,38 @@ public class MultipleCardRewardsRunHistoryPatch {
         }
     }
 
+    public static boolean hasAnyPickedCards(RunPathElement element) {
+        List<CardChoiceStats> cardChoices = CardChoicesField.cardChoiceStats.get(element);
+        return cardChoices != null && cardChoices.stream().anyMatch(cc -> !cc.picked.equals("SKIP"));
+    }
+
     @SpirePatch(clz = RunPathElement.class, method = "getTipDescriptionText")
     public static class DisplayFullCardChoiceData {
-        @SpireInsertPatch(locator = Locator.class, localvars = { "sb", "showCards" })
-        public static void displayFullCardChoiceData(RunPathElement __instance, StringBuilder sb, boolean showCards) {
+        @SpireInsertPatch(locator = Locator.class, localvars = { "sb" })
+        public static void displayFullCardChoiceData(RunPathElement __instance, StringBuilder sb) {
             List<CardChoiceStats> cardChoices = CardChoicesField.cardChoiceStats.get(__instance);
-            if (showCards && cardChoices != null && cardChoices.stream().anyMatch(cc -> !cc.picked.isEmpty() && !cc.picked.equals("SKIP"))) {
+            if (cardChoices != null) {
                 int i = 0;
                 for (CardChoiceStats cardChoice : cardChoices) {
-                    String text;
-                    if (cardChoice.picked.equals("Singing Bowl")) {
-                        text = TEXT_OBTAIN_TYPE_SPECIAL + TEXT_SINGING_BOWL_CHOICE;
-                    } else {
-                        text = TEXT_OBTAIN_TYPE_CARD + CardLibrary.getCardNameFromMetricID(cardChoice.picked);
-                    }
+                    if (!cardChoice.picked.isEmpty() && !cardChoice.picked.equals("SKIP")) {
+                        String text;
+                        if (cardChoice.picked.equals("Singing Bowl")) {
+                            text = TEXT_OBTAIN_TYPE_SPECIAL + TEXT_SINGING_BOWL_CHOICE;
+                        } else {
+                            text = TEXT_OBTAIN_TYPE_CARD + CardLibrary.getCardNameFromMetricID(cardChoice.picked);
+                        }
 
-                    if (sb.length() > 0) {
-                        sb.append(" NL ");
-                    }
+                        if (sb.length() > 0) {
+                            sb.append(" NL ");
+                        }
 
-                    sb.append(" TAB ").append(text);
+                        sb.append(" TAB ").append(text);
 
-                    if (i > 0) {
-                        sb.append(MessageFormat.format(TEXT[0], i + 1));
+                        if (i > 0) {
+                            sb.append(MessageFormat.format(TEXT[0], i + 1));
+                        }
+                        i++;
                     }
-                    i++;
                 }
             }
         }
