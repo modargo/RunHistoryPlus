@@ -72,10 +72,6 @@ public class RunHistoryPlus implements
         }
     }
 
-    public static String uiImage(String id) {
-        return "runhistoryplus/images/ui/" + removeModId(id) + ".png";
-    }
-
     public static String removeModId(String id) {
         if (id.startsWith("RunHistoryPlus:")) {
             return id.substring(id.indexOf(':') + 1);
