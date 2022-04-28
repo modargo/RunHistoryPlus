@@ -10,7 +10,6 @@ import com.megacrit.cardcrawl.helpers.PotionHelper;
 import com.megacrit.cardcrawl.metrics.Metrics;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
 import com.megacrit.cardcrawl.potions.FairyPotion;
-import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import com.megacrit.cardcrawl.screens.runHistory.RunHistoryPath;
 import com.megacrit.cardcrawl.screens.runHistory.RunPathElement;

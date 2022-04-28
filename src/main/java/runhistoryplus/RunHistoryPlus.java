@@ -1,7 +1,6 @@
 package runhistoryplus;
 
 import basemod.BaseMod;
-import basemod.ModPanel;
 import basemod.interfaces.EditStringsSubscriber;
 import basemod.interfaces.PostInitializeSubscriber;
 import com.badlogic.gdx.graphics.Texture;
