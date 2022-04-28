@@ -26,5 +26,10 @@
     "TEXT": [
       "#bTime #bspent: #b{0}"
     ]
+  },
+  "RunHistoryPlus:FallingOptions": {
+    "TEXT": [
+      "#yOther #yoptions:"
+    ]
   }
 }
