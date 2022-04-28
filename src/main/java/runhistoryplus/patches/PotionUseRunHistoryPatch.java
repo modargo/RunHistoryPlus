@@ -57,21 +57,13 @@ public class PotionUseRunHistoryPatch {
 
     @SpirePatch(clz = AbstractDungeon.class, method = "nextRoomTransition", paramtypez = { SaveFile.class })
     public static class NextRoomTransitionAddPotionEntryPatch {
-        @SpireInsertPatch(locator = Locator.class)
+        @SpirePrefixPatch
         public static void nextRoomTransitionAddPotionEntryPatch(AbstractDungeon __instance, SaveFile saveFile) {
             boolean isLoadingSave = CardCrawlGame.loadingSave && saveFile != null;
             if (!isLoadingSave) {
                 if (PotionUseLog.potion_use_per_floor != null) {
                     PotionUseLog.potion_use_per_floor.add(new ArrayList<>());
                 }
-            }
-        }
-
-        private static class Locator extends SpireInsertLocator {
-            @Override
-            public int[] Locate(CtBehavior ctMethodToPatch) throws Exception {
-                Matcher finalMatcher = new Matcher.MethodCallMatcher(AbstractRoom.class, "onPlayerEntry");
-                return LineFinder.findInOrder(ctMethodToPatch, finalMatcher);
             }
         }
     }
