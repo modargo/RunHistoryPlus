@@ -29,9 +29,9 @@ public class RunTooltipHooksPatch {
     }
 
     @SpirePatch(clz = RunPathElement.class, method = "getTipDescriptionText")
-    public static class DisplayFullCardSkipData {
+    public static class ReplacingCardSkips {
         @SpireInsertPatch(locator = Locator.class, localvars = { "sb" })
-        public static void displayFullCardSkipData(RunPathElement __instance, StringBuilder sb) {
+        public static void hook(RunPathElement __instance, StringBuilder sb) {
             RunTooltipHooks.replacingCardSkips(__instance, sb);
         }
 
