@@ -23,6 +23,7 @@ import com.megacrit.cardcrawl.shop.ShopScreen;
 import com.megacrit.cardcrawl.shop.StorePotion;
 import com.megacrit.cardcrawl.shop.StoreRelic;
 import javassist.*;
+import runhistoryplus.savables.ShopContentsLog;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

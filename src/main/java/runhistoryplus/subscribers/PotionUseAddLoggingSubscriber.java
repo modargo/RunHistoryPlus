@@ -2,7 +2,7 @@ package runhistoryplus.subscribers;
 
 import basemod.interfaces.PostPotionUseSubscriber;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
-import runhistoryplus.patches.PotionUseLog;
+import runhistoryplus.savables.PotionUseLog;
 
 import java.util.List;
 

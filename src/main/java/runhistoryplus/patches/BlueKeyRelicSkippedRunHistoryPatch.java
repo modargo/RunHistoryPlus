@@ -13,6 +13,7 @@ import com.megacrit.cardcrawl.screens.runHistory.RunHistoryPath;
 import com.megacrit.cardcrawl.screens.runHistory.RunPathElement;
 import com.megacrit.cardcrawl.screens.stats.RunData;
 import javassist.*;
+import runhistoryplus.savables.BlueKeyRelicSkippedLog;
 
 import java.lang.reflect.Field;
 import java.util.Collections;

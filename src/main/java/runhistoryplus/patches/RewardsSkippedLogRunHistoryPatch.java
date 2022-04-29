@@ -18,6 +18,7 @@ import com.megacrit.cardcrawl.screens.runHistory.RunHistoryScreen;
 import com.megacrit.cardcrawl.screens.runHistory.RunPathElement;
 import com.megacrit.cardcrawl.screens.stats.RunData;
 import javassist.*;
+import runhistoryplus.savables.RewardsSkippedLog;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

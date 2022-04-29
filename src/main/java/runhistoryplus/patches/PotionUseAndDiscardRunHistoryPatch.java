@@ -20,6 +20,8 @@ import com.megacrit.cardcrawl.ui.panels.TopPanel;
 import javassist.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import runhistoryplus.savables.PotionDiscardLog;
+import runhistoryplus.savables.PotionUseLog;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

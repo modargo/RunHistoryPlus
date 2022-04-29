@@ -9,7 +9,7 @@ import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.localization.UIStrings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import runhistoryplus.patches.*;
+import runhistoryplus.savables.*;
 import runhistoryplus.subscribers.PotionUseAddLoggingSubscriber;
 import runhistoryplus.ui.RunHistoryPlusModPanel;
 

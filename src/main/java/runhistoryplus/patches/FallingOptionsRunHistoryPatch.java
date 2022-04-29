@@ -17,6 +17,7 @@ import com.megacrit.cardcrawl.screens.stats.RunData;
 import javassist.*;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
+import runhistoryplus.savables.FallingOptionsLog;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

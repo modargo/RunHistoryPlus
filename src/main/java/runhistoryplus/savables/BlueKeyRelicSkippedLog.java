@@ -1,4 +1,4 @@
-package runhistoryplus.patches;
+package runhistoryplus.savables;
 
 import basemod.abstracts.CustomSavable;
 

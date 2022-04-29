@@ -29,6 +29,8 @@ import javassist.expr.MethodCall;
 import javassist.expr.NewExpr;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import runhistoryplus.savables.NeowBonusLog;
+import runhistoryplus.savables.RewardsSkippedLog;
 
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
