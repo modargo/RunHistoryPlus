@@ -28,11 +28,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RewardsSkippedLogRunHistoryPatch {
-    private static final String[] TOOLTIP_TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPathNodes").TEXT;
-    private static final String TEXT_SKIP_HEADER = TOOLTIP_TEXT[19];
-    private static final String TEXT_OBTAIN_TYPE_RELIC = TOOLTIP_TEXT[23];
-    private static final String TEXT_OBTAIN_TYPE_POTION = TOOLTIP_TEXT[24];
-
     @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
     public static class RewardsSkippedLogRunDataField {
         @SpireRawPatch
@@ -165,35 +160,6 @@ public class RewardsSkippedLogRunHistoryPatch {
             newLog.potions = Stream.concat(existing.potions.stream(), log.potions.stream()).collect(Collectors.toList());
         }
         RewardsSkippedField.rewardsSkipped.set(element, newLog);
-    }
-
-    @SpirePatch(clz = RunPathElement.class, method = "getTipDescriptionText")
-    public static class DisplayRewardsSkippedDataPatch {
-        @SpireInsertPatch(locator = Locator.class, localvars = { "sb" })
-        public static void displayRewardsSkippedData(RunPathElement __instance, StringBuilder sb) {
-            RewardsSkippedLog rewardsSkipped = RewardsSkippedField.rewardsSkipped.get(__instance);
-            if (rewardsSkipped != null && (!rewardsSkipped.relics.isEmpty() || !rewardsSkipped.potions.isEmpty())) {
-                if (ReflectionHacks.getPrivate(__instance, RunPathElement.class, "cardChoiceStats") == null) {
-                    if (sb.length() > 0) {
-                        sb.append(" NL ");
-                    }
-                    sb.append(TEXT_SKIP_HEADER);
-                }
-                for (String relicID : rewardsSkipped.relics) {
-                    sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_RELIC).append(RelicLibrary.getRelic(relicID).name);
-                }
-                for (String potionID : rewardsSkipped.potions) {
-                    sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_POTION).append(PotionHelper.getPotion(potionID).name);
-                }
-            }
-        }
-
-        public static class Locator extends SpireInsertLocator {
-            public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
-                Matcher matcher = new Matcher.FieldAccessMatcher(RunPathElement.class, "shopPurchases");
-                return LineFinder.findInOrder(ctMethodToPatch, matcher);
-            }
-        }
     }
 
     @SpirePatch(clz = AbstractDungeon.class, method = "nextRoomTransition", paramtypez = { SaveFile.class })

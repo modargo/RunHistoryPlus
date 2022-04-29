@@ -12,6 +12,21 @@ import java.util.Arrays;
 
 public class RunTooltipHooksPatch {
     @SpirePatch(clz = RunPathElement.class, method = "getTipDescriptionText")
+    public static class WithSkippedRewardsHook {
+        @SpireInsertPatch(locator = Locator.class, localvars = { "sb" })
+        public static void hook(RunPathElement __instance, StringBuilder sb) {
+            RunTooltipHooks.withSkippedRewards(__instance, sb);
+        }
+
+        public static class Locator extends SpireInsertLocator {
+            public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
+                Matcher matcher = new Matcher.FieldAccessMatcher(RunPathElement.class, "shopPurchases");
+                return LineFinder.findInOrder(ctMethodToPatch, matcher);
+            }
+        }
+    }
+
+    @SpirePatch(clz = RunPathElement.class, method = "getTipDescriptionText")
     public static class AtEndHook {
         @SpireInsertPatch(locator = Locator.class, localvars = { "sb" })
         public static void hook(RunPathElement __instance, StringBuilder sb) {
