@@ -42,9 +42,22 @@ public class MultipleCardRewardsRunHistoryPatch {
                 if (!m.containsKey(stats.floor)) {
                     m.put(stats.floor, new ArrayList<>());
                 }
-                m.get(stats.floor).add(stats);
+                List<CardChoiceStats> l = m.get(stats.floor);
+                // Occasionally, the game will record two copies of the same card choice decision
+                // I believe this to be independent of Run History Plus (i.e. not caused by any of the patches here)
+                // To handle this, we assume that duplicate entries are anomalies and not real
+                // This could turn out to be invalid (meaning that we don't show something we should have) if some mod
+                // out there adds multiple rewards with pre-determined options, or with options from a very very small
+                // pool of cards, but this should be good enough for the base game
+                if (!duplicateEntryExists(l, stats)) {
+                    l.add(stats);
+                }
             }
             CardChoicesByFloorField.cardChoicesByFloor.set(__instance, m);
+        }
+
+        private static boolean duplicateEntryExists(List<CardChoiceStats> cardChoices, CardChoiceStats cardChoice) {
+            return cardChoices.stream().anyMatch(cc -> cc.floor == cardChoice.floor && cc.picked.equals(cardChoice.picked) && cc.not_picked.equals(cardChoice.not_picked));
         }
 
         public static class Locator extends SpireInsertLocator {
