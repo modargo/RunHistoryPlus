@@ -5,6 +5,7 @@ import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
+import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.CardLibrary;
@@ -146,8 +147,8 @@ public class ShopContentsRunHistoryPatch {
                 for (String relicID : shopContents.relics) {
                     sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_RELIC).append(RelicLibrary.getRelic(relicID).name);
                 }
-                for (String cardID : shopContents.cards) {
-                    sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_CARD).append(CardLibrary.getCardNameFromMetricID(cardID));
+                for (String cardMetricID : shopContents.cards) {
+                    sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_CARD).append(CardLibrary.getCardNameFromMetricID(cardMetricID));
                 }
                 for (String potionID : shopContents.potions) {
                     sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_POTION).append(PotionHelper.getPotion(potionID).name);
@@ -178,8 +179,8 @@ public class ShopContentsRunHistoryPatch {
                     shopContentsLog.floor = AbstractDungeon.floorNum;
                     shopContentsLog.cards = new ArrayList<>();
                     shopContentsLog.relics = relics.stream().map(r -> r.relic.relicId).collect(Collectors.toList());
-                    shopContentsLog.cards.addAll(shopScreen.coloredCards.stream().map(c -> c.cardID).collect(Collectors.toList()));
-                    shopContentsLog.cards.addAll(shopScreen.colorlessCards.stream().map(c -> c.cardID).collect(Collectors.toList()));
+                    shopContentsLog.cards.addAll(shopScreen.coloredCards.stream().map(AbstractCard::getMetricID).collect(Collectors.toList()));
+                    shopContentsLog.cards.addAll(shopScreen.colorlessCards.stream().map(AbstractCard::getMetricID).collect(Collectors.toList()));
                     shopContentsLog.potions = potions.stream().map(p -> p.potion.ID).collect(Collectors.toList());
                     ShopContentsLog.shopContentsLog.add(shopContentsLog);
                 }

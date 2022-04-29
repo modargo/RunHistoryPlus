@@ -224,7 +224,7 @@ public class NeowBonusRunHistoryPatch {
     }
 
     public static void logObtainCard(AbstractCard card) {
-        NeowBonusLog.neowBonusLog.cardsObtained.add(card.cardID);
+        NeowBonusLog.neowBonusLog.cardsObtained.add(card.getMetricID());
     }
 
     public static void logObtainRelic(AbstractRelic relic) {
@@ -252,15 +252,15 @@ public class NeowBonusRunHistoryPatch {
     }
 
     public static void logUpgradeCard(AbstractCard card) {
-        NeowBonusLog.neowBonusLog.cardsUpgraded.add(card.cardID);
+        NeowBonusLog.neowBonusLog.cardsUpgraded.add(card.getMetricID());
     }
 
     public static void logRemoveOrTransformCard(AbstractCard card, NeowReward.NeowRewardType rewardType) {
         if (rewardType == NeowReward.NeowRewardType.REMOVE_CARD || rewardType == NeowReward.NeowRewardType.REMOVE_TWO) {
-            NeowBonusLog.neowBonusLog.cardsRemoved.add(card.cardID);
+            NeowBonusLog.neowBonusLog.cardsRemoved.add(card.getMetricID());
         }
         else if (rewardType == NeowReward.NeowRewardType.TRANSFORM_CARD || rewardType == NeowReward.NeowRewardType.TRANSFORM_TWO_CARDS){
-            NeowBonusLog.neowBonusLog.cardsTransformed.add(card.cardID);
+            NeowBonusLog.neowBonusLog.cardsTransformed.add(card.getMetricID());
         }
         else {
             logger.error("Unrecognized rewardType for removing or transforming: " + rewardType.name());
@@ -415,18 +415,18 @@ public class NeowBonusRunHistoryPatch {
             sb.append(TEXT_GAINED).append(String.format(TEXT_GOLD_FORMAT, neowBonusLog.goldGained)).append(nl);
         }
 
-        for (String cardID : neowBonusLog.cardsRemoved) {
-            String cardName = CardLibrary.getCardNameFromMetricID(cardID);
+        for (String cardMetricID : neowBonusLog.cardsRemoved) {
+            String cardName = CardLibrary.getCardNameFromMetricID(cardMetricID);
             sb.append(String.format(TEXT_REMOVE_OPTION, cardName)).append(nl);
         }
 
-        for (String cardID : neowBonusLog.cardsUpgraded) {
-            String cardName = CardLibrary.getCardNameFromMetricID(cardID);
+        for (String cardMetricID : neowBonusLog.cardsUpgraded) {
+            String cardName = CardLibrary.getCardNameFromMetricID(cardMetricID);
             sb.append(String.format(TEXT_UPGRADED, cardName)).append(nl);
         }
 
-        for (String cardID : neowBonusLog.cardsTransformed) {
-            String cardName = CardLibrary.getCardNameFromMetricID(cardID);
+        for (String cardMetricID : neowBonusLog.cardsTransformed) {
+            String cardName = CardLibrary.getCardNameFromMetricID(cardMetricID);
             sb.append(String.format(TEXT_TRANSFORMED, cardName)).append(nl);
         }
 
@@ -436,8 +436,8 @@ public class NeowBonusRunHistoryPatch {
                 String relicName = RelicLibrary.getRelic(relicID).name;
                 sb.append(tab).append(TEXT_OBTAIN_TYPE_RELIC).append(relicName).append(nl);
             }
-            for (String cardID : allCardsObtained) {
-                String cardName = CardLibrary.getCardNameFromMetricID(cardID);
+            for (String cardMetricID : allCardsObtained) {
+                String cardName = CardLibrary.getCardNameFromMetricID(cardMetricID);
                 sb.append(tab).append(TEXT_OBTAIN_TYPE_CARD).append(cardName).append(nl);
             }
             for (String potionID : neowPotionsObtained) {
@@ -448,8 +448,8 @@ public class NeowBonusRunHistoryPatch {
 
         if (!neowCardsNotTaken.isEmpty() || !neowPotionsNotTaken.isEmpty()) {
             sb.append(TEXT_SKIP_HEADER).append(nl);
-            for (String cardID : neowCardsNotTaken) {
-                String cardName = CardLibrary.getCardNameFromMetricID(cardID);
+            for (String cardMetricID : neowCardsNotTaken) {
+                String cardName = CardLibrary.getCardNameFromMetricID(cardMetricID);
                 sb.append(tab).append(TEXT_OBTAIN_TYPE_CARD).append(cardName).append(nl);
             }
             for (String potionID : neowPotionsNotTaken) {

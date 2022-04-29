@@ -159,8 +159,8 @@ public class MultipleCardRewardsRunHistoryPatch {
                 int i = 0;
                 for (CardChoiceStats cardChoice : cardChoices) {
                     int j = 0;
-                    for (String cardID : cardChoice.not_picked) {
-                        String text = CardLibrary.getCardNameFromMetricID(cardID);
+                    for (String cardMetricID : cardChoice.not_picked) {
+                        String text = CardLibrary.getCardNameFromMetricID(cardMetricID);
                         sb.append(" TAB ").append(TEXT_OBTAIN_TYPE_CARD).append(text);
                         if (i > 0) {
                             sb.append(MessageFormat.format(TEXT[0], i + 1));

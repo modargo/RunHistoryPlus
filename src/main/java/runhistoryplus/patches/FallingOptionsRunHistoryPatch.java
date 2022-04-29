@@ -101,8 +101,8 @@ public class FallingOptionsRunHistoryPatch {
                     sb.append(" NL ");
                 }
                 sb.append(TEXT[0]);
-                for (String cardID : fallingOptionsLog) {
-                    sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_CARD).append(CardLibrary.getCardNameFromMetricID(cardID));
+                for (String cardMetricID : fallingOptionsLog) {
+                    sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_CARD).append(CardLibrary.getCardNameFromMetricID(cardMetricID));
                 }
             }
         }
@@ -139,13 +139,13 @@ public class FallingOptionsRunHistoryPatch {
 
             List<String> otherOptions = new ArrayList<>();
             if (c1 != null && c1 != pickedCard) {
-                otherOptions.add(c1.cardID);
+                otherOptions.add(c1.getMetricID());
             }
             if (c2 != null && c2 != pickedCard) {
-                otherOptions.add(c2.cardID);
+                otherOptions.add(c2.getMetricID());
             }
             if (c3 != null && c3 != pickedCard) {
-                otherOptions.add(c3.cardID);
+                otherOptions.add(c3.getMetricID());
             }
 
             FallingOptionsLog.fallingOptionsLog = otherOptions;

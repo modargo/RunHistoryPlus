@@ -18,10 +18,10 @@ public class TheLibrarySkippedCardsRunHistoryPatch {
     @SpireInsertPatch(locator = Locator.class)
     public static void logSkippedCards (TheLibrary __instance) {
         AbstractCard c = AbstractDungeon.gridSelectScreen.selectedCards.get(0);
-        List<String> skippedCardIds = AbstractDungeon.gridSelectScreen.targetGroup.group.stream().filter(card -> card != c).map(card -> card.cardID).collect(Collectors.toList());
+        List<String> skippedCardMetricIds = AbstractDungeon.gridSelectScreen.targetGroup.group.stream().filter(card -> card != c).map(AbstractCard::getMetricID).collect(Collectors.toList());
         HashMap<String, Object> choice = new HashMap<>();
-        choice.put("picked", c.cardID);
-        choice.put("not_picked", skippedCardIds);
+        choice.put("picked", c.getMetricID());
+        choice.put("not_picked", skippedCardMetricIds);
         choice.put("floor", AbstractDungeon.floorNum);
         CardCrawlGame.metricData.card_choices.add(choice);
     }
