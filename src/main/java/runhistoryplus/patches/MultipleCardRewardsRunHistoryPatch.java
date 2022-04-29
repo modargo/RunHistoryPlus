@@ -2,8 +2,6 @@ package runhistoryplus.patches;
 
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
-import com.megacrit.cardcrawl.core.CardCrawlGame;
-import com.megacrit.cardcrawl.helpers.CardLibrary;
 import com.megacrit.cardcrawl.screens.runHistory.RunHistoryPath;
 import com.megacrit.cardcrawl.screens.runHistory.RunPathElement;
 import com.megacrit.cardcrawl.screens.stats.CardChoiceStats;
@@ -13,16 +11,9 @@ import javassist.CtBehavior;
 import javassist.expr.ExprEditor;
 import javassist.expr.FieldAccess;
 
-import java.text.MessageFormat;
 import java.util.*;
 
 public class MultipleCardRewardsRunHistoryPatch {
-    private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:MultipleCardRewards").TEXT;
-    private static final String[] TOOLTIP_TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPathNodes").TEXT;
-    private static final String TEXT_SINGING_BOWL_CHOICE = TOOLTIP_TEXT[21];
-    private static final String TEXT_OBTAIN_TYPE_CARD = TOOLTIP_TEXT[22];
-    private static final String TEXT_OBTAIN_TYPE_SPECIAL = TOOLTIP_TEXT[25];
-
     @SpirePatch(clz = RunPathElement.class, method = SpirePatch.CLASS)
     public static class CardChoicesField {
         public static final SpireField<List<CardChoiceStats>> cardChoiceStats = new SpireField<>(() -> null);
@@ -122,77 +113,5 @@ public class MultipleCardRewardsRunHistoryPatch {
     public static boolean hasAnyPickedCards(RunPathElement element) {
         List<CardChoiceStats> cardChoices = CardChoicesField.cardChoiceStats.get(element);
         return cardChoices != null && cardChoices.stream().anyMatch(cc -> !cc.picked.equals("SKIP"));
-    }
-
-    @SpirePatch(clz = RunPathElement.class, method = "getTipDescriptionText")
-    public static class DisplayFullCardChoiceData {
-        @SpireInsertPatch(locator = Locator.class, localvars = { "sb" })
-        public static void displayFullCardChoiceData(RunPathElement __instance, StringBuilder sb) {
-            List<CardChoiceStats> cardChoices = CardChoicesField.cardChoiceStats.get(__instance);
-            if (cardChoices != null) {
-                int i = 0;
-                for (CardChoiceStats cardChoice : cardChoices) {
-                    if (!cardChoice.picked.isEmpty() && !cardChoice.picked.equals("SKIP")) {
-                        String text;
-                        if (cardChoice.picked.equals("Singing Bowl")) {
-                            text = TEXT_OBTAIN_TYPE_SPECIAL + TEXT_SINGING_BOWL_CHOICE;
-                        } else {
-                            text = TEXT_OBTAIN_TYPE_CARD + CardLibrary.getCardNameFromMetricID(cardChoice.picked);
-                        }
-
-                        if (sb.length() > 0) {
-                            sb.append(" NL ");
-                        }
-
-                        sb.append(" TAB ").append(text);
-
-                        if (i > 0) {
-                            sb.append(MessageFormat.format(TEXT[0], i + 1));
-                        }
-                        i++;
-                    }
-                }
-            }
-        }
-
-        public static class Locator extends SpireInsertLocator {
-            public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
-                Matcher matcher = new Matcher.FieldAccessMatcher(CardChoiceStats.class, "picked");
-                return LineFinder.findInOrder(ctMethodToPatch, Collections.singletonList(matcher), matcher);
-            }
-        }
-    }
-
-    @SpirePatch(clz = RunPathElement.class, method = "getTipDescriptionText")
-    public static class DisplayFullCardSkipData {
-        @SpireInsertPatch(locator = Locator.class, localvars = { "sb", "showCards" })
-        public static void displayFullCardSkipData(RunPathElement __instance, StringBuilder sb, boolean showCards) {
-            List<CardChoiceStats> cardChoices = CardChoicesField.cardChoiceStats.get(__instance);
-            if (cardChoices != null && cardChoices.stream().anyMatch(cc -> cc.not_picked.size() > 0)) {
-                int i = 0;
-                for (CardChoiceStats cardChoice : cardChoices) {
-                    int j = 0;
-                    for (String cardMetricID : cardChoice.not_picked) {
-                        String text = CardLibrary.getCardNameFromMetricID(cardMetricID);
-                        sb.append(" TAB ").append(TEXT_OBTAIN_TYPE_CARD).append(text);
-                        if (i > 0) {
-                            sb.append(MessageFormat.format(TEXT[0], i + 1));
-                        }
-                        if (i < cardChoices.size() - 1 || j < cardChoice.not_picked.size() - 1) {
-                            sb.append(" NL ");
-                        }
-                        j++;
-                    }
-                    i++;
-                }
-            }
-        }
-
-        public static class Locator extends SpireInsertLocator {
-            public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
-                Matcher matcher = new Matcher.FieldAccessMatcher(CardChoiceStats.class, "not_picked");
-                return LineFinder.findInOrder(ctMethodToPatch, matcher);
-            }
-        }
     }
 }
