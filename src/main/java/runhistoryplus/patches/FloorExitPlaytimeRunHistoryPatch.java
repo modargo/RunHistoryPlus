@@ -103,7 +103,7 @@ public class FloorExitPlaytimeRunHistoryPatch {
                     if (sb.length() > 0) {
                         sb.append(" NL ");
                     }
-                    sb.append(MessageFormat.format(TEXT[0], CharStat.formatHMSM(floorPlaytime)));
+                    sb.append(MessageFormat.format(TEXT[0], CharStat.formatHMSM((float)floorPlaytime)));
                 }
             }
         }
