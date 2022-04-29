@@ -6,6 +6,7 @@ import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.CardLibrary;
 import com.megacrit.cardcrawl.helpers.PotionHelper;
 import com.megacrit.cardcrawl.metrics.Metrics;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
@@ -25,6 +26,7 @@ import runhistoryplus.savables.PotionUseLog;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -179,8 +181,10 @@ public class PotionUseAndDiscardRunHistoryPatch {
 
         public static class Locator extends SpireInsertLocator {
             public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
-                Matcher matcher = new Matcher.FieldAccessMatcher(RunPathElement.class, "shopPurchases");
-                return LineFinder.findInOrder(ctMethodToPatch, matcher);
+                Matcher matcher = new Matcher.FieldAccessMatcher(RunPathElement.class, "shopPurges");
+                Matcher secondMatcher = new Matcher.MethodCallMatcher(CardLibrary.class, "getCardNameFromMetricID");
+                Matcher finalMatcher = new Matcher.MethodCallMatcher(StringBuilder.class, "length");
+                return LineFinder.findInOrder(ctMethodToPatch, Arrays.asList(matcher, secondMatcher), finalMatcher);
             }
         }
     }
