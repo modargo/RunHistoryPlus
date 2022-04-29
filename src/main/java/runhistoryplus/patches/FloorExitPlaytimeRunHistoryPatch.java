@@ -10,16 +10,13 @@ import com.megacrit.cardcrawl.monsters.MonsterGroup;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import com.megacrit.cardcrawl.screens.runHistory.RunHistoryPath;
 import com.megacrit.cardcrawl.screens.runHistory.RunPathElement;
-import com.megacrit.cardcrawl.screens.stats.CharStat;
 import com.megacrit.cardcrawl.screens.stats.RunData;
 import javassist.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import runhistoryplus.Config;
 import runhistoryplus.savables.FloorExitPlaytimeLog;
 
 import java.lang.reflect.Field;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +24,6 @@ import java.util.stream.Collectors;
 
 public class FloorExitPlaytimeRunHistoryPatch {
     private static final Logger logger = LogManager.getLogger(FloorExitPlaytimeRunHistoryPatch.class.getName());
-    private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:FloorExitPlaytime").TEXT;
 
     @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
     public static class FloorExitPlaytimeLogRunDataField {
@@ -89,30 +85,6 @@ public class FloorExitPlaytimeRunHistoryPatch {
             public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
                 Matcher matcher = new Matcher.NewExprMatcher(RunPathElement.class);
                 Matcher finalMatcher = new Matcher.MethodCallMatcher(List.class, "add");
-                return LineFinder.findInOrder(ctMethodToPatch, Collections.singletonList(matcher), finalMatcher);
-            }
-        }
-    }
-
-    @SpirePatch(clz = RunPathElement.class, method = "getTipDescriptionText")
-    public static class DisplayFloorExitPlaytimePatch {
-        @SpireInsertPatch(locator = Locator.class, localvars = { "sb" })
-        public static void displayFloorExitPlaytime(RunPathElement __instance, StringBuilder sb) {
-            if (Config.timeSpentPerFloor()) {
-                Integer floorPlaytime = floorPlaytimeField.floorPlaytime.get(__instance);
-                if (floorPlaytime != null) {
-                    if (sb.length() > 0) {
-                        sb.append(" NL ");
-                    }
-                    sb.append(MessageFormat.format(TEXT[0], CharStat.formatHMSM((float)floorPlaytime)));
-                }
-            }
-        }
-
-        public static class Locator extends SpireInsertLocator {
-            public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
-                Matcher matcher = new Matcher.FieldAccessMatcher(RunPathElement.class, "shopPurges");
-                Matcher finalMatcher = new Matcher.FieldAccessMatcher(RunPathElement.class, "cachedTooltip");
                 return LineFinder.findInOrder(ctMethodToPatch, Collections.singletonList(matcher), finalMatcher);
             }
         }

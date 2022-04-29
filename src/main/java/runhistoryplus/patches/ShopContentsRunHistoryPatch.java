@@ -32,12 +32,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ShopContentsRunHistoryPatch {
-    private static final String[] TOOLTIP_TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPathNodes").TEXT;
-    private static final String TEXT_SKIP_HEADER = TOOLTIP_TEXT[19];
-    private static final String TEXT_OBTAIN_TYPE_CARD = TOOLTIP_TEXT[22];
-    private static final String TEXT_OBTAIN_TYPE_RELIC = TOOLTIP_TEXT[23];
-    private static final String TEXT_OBTAIN_TYPE_POTION = TOOLTIP_TEXT[24];
-
     @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
     public static class ShopContentsRunDataField {
         @SpireRawPatch
@@ -130,37 +124,6 @@ public class ShopContentsRunHistoryPatch {
             public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
                 Matcher matcher = new Matcher.NewExprMatcher(RunPathElement.class);
                 Matcher finalMatcher = new Matcher.MethodCallMatcher(List.class, "add");
-                return LineFinder.findInOrder(ctMethodToPatch, Collections.singletonList(matcher), finalMatcher);
-            }
-        }
-    }
-
-    @SpirePatch(clz = RunPathElement.class, method = "getTipDescriptionText")
-    public static class DisplayShopContentsDataPatch {
-        @SpireInsertPatch(locator = Locator.class, localvars = { "sb" })
-        public static void displayShopContentsData(RunPathElement __instance, StringBuilder sb) {
-            ShopContentsLog shopContents = ShopContentsField.shopContents.get(__instance);
-            if (shopContents != null && (!shopContents.cards.isEmpty() || !shopContents.relics.isEmpty() || !shopContents.potions.isEmpty())) {
-                if (sb.length() > 0) {
-                    sb.append(" NL ");
-                }
-                sb.append(TEXT_SKIP_HEADER);
-                for (String relicID : shopContents.relics) {
-                    sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_RELIC).append(RelicLibrary.getRelic(relicID).name);
-                }
-                for (String cardMetricID : shopContents.cards) {
-                    sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_CARD).append(CardLibrary.getCardNameFromMetricID(cardMetricID));
-                }
-                for (String potionID : shopContents.potions) {
-                    sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_POTION).append(PotionHelper.getPotion(potionID).name);
-                }
-            }
-        }
-
-        public static class Locator extends SpireInsertLocator {
-            public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
-                Matcher matcher = new Matcher.FieldAccessMatcher(RunPathElement.class, "shopPurges");
-                Matcher finalMatcher = new Matcher.MethodCallMatcher(StringBuilder.class, "length");
                 return LineFinder.findInOrder(ctMethodToPatch, Collections.singletonList(matcher), finalMatcher);
             }
         }

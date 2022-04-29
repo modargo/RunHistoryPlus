@@ -5,6 +5,7 @@ import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.CardLibrary;
 import com.megacrit.cardcrawl.helpers.RelicLibrary;
 import com.megacrit.cardcrawl.metrics.Metrics;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
@@ -16,14 +17,11 @@ import javassist.*;
 import runhistoryplus.savables.BlueKeyRelicSkippedLog;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class BlueKeyRelicSkippedRunHistoryPatch {
-    private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:BlueKeyRelicSkipped").TEXT;
-    private static final String[] TOOLTIP_TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPathNodes").TEXT;
-    private static final String TEXT_OBTAIN_TYPE_RELIC = TOOLTIP_TEXT[23];
-
     @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
     public static class BlueKeyRelicSkippedLogRunDataField {
         @SpireRawPatch
@@ -78,29 +76,6 @@ public class BlueKeyRelicSkippedRunHistoryPatch {
             public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
                 Matcher matcher = new Matcher.NewExprMatcher(RunPathElement.class);
                 Matcher finalMatcher = new Matcher.MethodCallMatcher(List.class, "add");
-                return LineFinder.findInOrder(ctMethodToPatch, Collections.singletonList(matcher), finalMatcher);
-            }
-        }
-    }
-
-    @SpirePatch(clz = RunPathElement.class, method = "getTipDescriptionText")
-    public static class DisplayBlueKeyRelicSkippedDataPatch {
-        @SpireInsertPatch(locator = Locator.class, localvars = { "sb" })
-        public static void displayBlueKeyRelicSkippedData(RunPathElement __instance, StringBuilder sb) {
-            BlueKeyRelicSkippedLog blueKeyRelicSkippedLog = BlueKeyRelicSkippedLogField.blueKeyRelicSkippedLog.get(__instance);
-            if (blueKeyRelicSkippedLog != null) {
-                if (sb.length() > 0) {
-                    sb.append(" NL ");
-                }
-                sb.append(TEXT[0]);
-                sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_RELIC).append(RelicLibrary.getRelic(blueKeyRelicSkippedLog.relicID).name);
-            }
-        }
-
-        public static class Locator extends SpireInsertLocator {
-            public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
-                Matcher matcher = new Matcher.FieldAccessMatcher(RunPathElement.class, "shopPurges");
-                Matcher finalMatcher = new Matcher.MethodCallMatcher(StringBuilder.class, "length");
                 return LineFinder.findInOrder(ctMethodToPatch, Collections.singletonList(matcher), finalMatcher);
             }
         }

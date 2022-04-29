@@ -11,7 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import runhistoryplus.savables.*;
 import runhistoryplus.subscribers.PotionUseAddLoggingSubscriber;
-import runhistoryplus.ui.RunHistoryPlusModPanel;
+import runhistoryplus.panel.RunHistoryPlusModPanel;
 
 import static com.megacrit.cardcrawl.core.Settings.GameLanguage;
 import static com.megacrit.cardcrawl.core.Settings.language;

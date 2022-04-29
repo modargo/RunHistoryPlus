@@ -25,10 +25,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class FallingOptionsRunHistoryPatch {
-    private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:FallingOptions").TEXT;
-    private static final String[] TOOLTIP_TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPathNodes").TEXT;
-    private static final String TEXT_OBTAIN_TYPE_CARD = TOOLTIP_TEXT[22];
-
     @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
     public static class FallingOptionsLogRunDataField {
         @SpireRawPatch
@@ -87,31 +83,6 @@ public class FallingOptionsRunHistoryPatch {
             public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
                 Matcher matcher = new Matcher.NewExprMatcher(RunPathElement.class);
                 Matcher finalMatcher = new Matcher.MethodCallMatcher(List.class, "add");
-                return LineFinder.findInOrder(ctMethodToPatch, Collections.singletonList(matcher), finalMatcher);
-            }
-        }
-    }
-
-    @SpirePatch(clz = RunPathElement.class, method = "getTipDescriptionText")
-    public static class DisplayFallingOptionsData {
-        @SpireInsertPatch(locator = Locator.class, localvars = { "sb" })
-        public static void displayBlueKeyRelicSkippedData(RunPathElement __instance, StringBuilder sb) {
-            List<String> fallingOptionsLog = FallingOptionsLogField.fallingOptionsLog.get(__instance);
-            if (fallingOptionsLog != null) {
-                if (sb.length() > 0) {
-                    sb.append(" NL ");
-                }
-                sb.append(TEXT[0]);
-                for (String cardMetricID : fallingOptionsLog) {
-                    sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_CARD).append(CardLibrary.getCardNameFromMetricID(cardMetricID));
-                }
-            }
-        }
-
-        public static class Locator extends SpireInsertLocator {
-            public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
-                Matcher matcher = new Matcher.FieldAccessMatcher(RunPathElement.class, "eventStats");
-                Matcher finalMatcher = new Matcher.FieldAccessMatcher(RunPathElement.class, "campfireChoice");
                 return LineFinder.findInOrder(ctMethodToPatch, Collections.singletonList(matcher), finalMatcher);
             }
         }

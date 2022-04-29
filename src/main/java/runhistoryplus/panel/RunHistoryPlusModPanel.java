@@ -1,4 +1,4 @@
-package runhistoryplus.ui;
+package runhistoryplus.panel;
 
 import basemod.ModLabel;
 import basemod.ModPanel;

@@ -32,9 +32,6 @@ import java.util.List;
 
 public class PotionUseAndDiscardRunHistoryPatch {
     private static final Logger logger = LogManager.getLogger(PotionUseAndDiscardRunHistoryPatch.class.getName());
-    private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:PotionUseAndDiscard").TEXT;
-    private static final String[] TOOLTIP_TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPathNodes").TEXT;
-    private static final String TEXT_OBTAIN_TYPE_POTION = TOOLTIP_TEXT[24];
     
     @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
     public static class PotionUsePerFloorField {
@@ -148,43 +145,6 @@ public class PotionUseAndDiscardRunHistoryPatch {
                 Matcher matcher = new Matcher.NewExprMatcher(RunPathElement.class);
                 Matcher finalMatcher = new Matcher.MethodCallMatcher(List.class, "add");
                 return LineFinder.findInOrder(ctMethodToPatch, Collections.singletonList(matcher), finalMatcher);
-            }
-        }
-    }
-
-    @SpirePatch(clz = RunPathElement.class, method = "getTipDescriptionText")
-    public static class DisplayPotionUseAndDiscardDataPatch {
-        @SpireInsertPatch(locator = Locator.class, localvars = { "sb" })
-        public static void displayPotionUseAndDiscardData(RunPathElement __instance, StringBuilder sb) {
-            List<String> potionUse = PotionUseField.potionUse.get(__instance);
-            if (potionUse != null && !potionUse.isEmpty()) {
-                if (sb.length() > 0) {
-                    sb.append(" NL ");
-                }
-                sb.append(TEXT[0]);
-                for (String potionID : potionUse) {
-                    sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_POTION).append(PotionHelper.getPotion(potionID).name);
-                }
-            }
-
-            List<String> potionDiscard = PotionDiscardField.potionDiscard.get(__instance);
-            if (potionDiscard != null && !potionDiscard.isEmpty()) {
-                if (sb.length() > 0) {
-                    sb.append(" NL ");
-                }
-                sb.append(TEXT[1]);
-                for (String potionID : potionDiscard) {
-                    sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_POTION).append(PotionHelper.getPotion(potionID).name);
-                }
-            }
-        }
-
-        public static class Locator extends SpireInsertLocator {
-            public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
-                Matcher matcher = new Matcher.FieldAccessMatcher(RunPathElement.class, "shopPurges");
-                Matcher secondMatcher = new Matcher.MethodCallMatcher(CardLibrary.class, "getCardNameFromMetricID");
-                Matcher finalMatcher = new Matcher.MethodCallMatcher(StringBuilder.class, "length");
-                return LineFinder.findInOrder(ctMethodToPatch, Arrays.asList(matcher, secondMatcher), finalMatcher);
             }
         }
     }
