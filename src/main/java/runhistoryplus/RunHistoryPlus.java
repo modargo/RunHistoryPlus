@@ -7,11 +7,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.localization.UIStrings;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import runhistoryplus.panel.RunHistoryPlusModPanel;
 import runhistoryplus.savables.*;
 import runhistoryplus.subscribers.PotionUseAddLoggingSubscriber;
-import runhistoryplus.panel.RunHistoryPlusModPanel;
 
 import static com.megacrit.cardcrawl.core.Settings.GameLanguage;
 import static com.megacrit.cardcrawl.core.Settings.language;
@@ -20,8 +18,6 @@ import static com.megacrit.cardcrawl.core.Settings.language;
 public class RunHistoryPlus implements
         PostInitializeSubscriber,
         EditStringsSubscriber {
-    private static final Logger logger = LogManager.getLogger(RunHistoryPlus.class.getName());
-
     public RunHistoryPlus() {
         BaseMod.subscribe(this);
     }
