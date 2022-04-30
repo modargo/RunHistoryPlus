@@ -10,10 +10,15 @@ import javassist.CannotCompileException;
 import javassist.CtBehavior;
 import javassist.expr.ExprEditor;
 import javassist.expr.FieldAccess;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import runhistoryplus.RunHistoryPlus;
 
 import java.util.*;
 
 public class MultipleCardRewardsRunHistoryPatch {
+    private static final Logger logger = LogManager.getLogger(MultipleCardRewardsRunHistoryPatch.class.getName());
+
     @SpirePatch(clz = RunPathElement.class, method = SpirePatch.CLASS)
     public static class CardChoicesField {
         public static final SpireField<List<CardChoiceStats>> cardChoiceStats = new SpireField<>(() -> null);
@@ -42,6 +47,9 @@ public class MultipleCardRewardsRunHistoryPatch {
                 // pool of cards, but this should be good enough for the base game
                 if (!duplicateEntryExists(l, stats)) {
                     l.add(stats);
+                }
+                else {
+                    logger.info("Duplicate card_choices entry on floor " + stats.floor);
                 }
             }
             CardChoicesByFloorField.cardChoicesByFloor.set(__instance, m);
