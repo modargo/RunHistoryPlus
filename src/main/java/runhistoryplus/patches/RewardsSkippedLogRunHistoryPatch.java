@@ -9,6 +9,7 @@ import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.metrics.Metrics;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
+import com.megacrit.cardcrawl.relics.Sozu;
 import com.megacrit.cardcrawl.rewards.RewardItem;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import com.megacrit.cardcrawl.screens.runHistory.RunHistoryPath;
@@ -160,6 +161,21 @@ public class RewardsSkippedLogRunHistoryPatch {
         RewardsSkippedField.rewardsSkipped.set(element, newLog);
     }
 
+    @SpirePatch(clz = RewardItem.class, method = "claimReward")
+    public static class RewardsSkippedSozuAddLogging {
+        @SpirePrefixPatch
+        public static void rewardsSkippedSozuAddLogging(RewardItem __instance) {
+            if (__instance.type == RewardItem.RewardType.POTION && AbstractDungeon.player.hasRelic(Sozu.ID)) {
+                RewardsSkippedLog log = new RewardsSkippedLog();
+                log.floor = AbstractDungeon.floorNum;
+                log.relics = new ArrayList<>();
+                log.potions = new ArrayList<>();
+                log.potions.add(__instance.potion.ID);
+                addRewardsSkippedLog(log);
+            }
+        }
+    }
+
     @SpirePatch(clz = AbstractDungeon.class, method = "nextRoomTransition", paramtypez = { SaveFile.class })
     public static class RewardsSkippedAddLogging {
         @SpirePrefixPatch
@@ -182,9 +198,23 @@ public class RewardsSkippedLogRunHistoryPatch {
                         }
                     }
                     if (!log.relics.isEmpty() || !log.potions.isEmpty()) {
-                        RewardsSkippedLog.rewardsSkippedLog.add(log);
+                        addRewardsSkippedLog(log);
                     }
                 }
+            }
+        }
+    }
+
+    public static void addRewardsSkippedLog(RewardsSkippedLog log) {
+        if (RewardsSkippedLog.rewardsSkippedLog != null) {
+            List<RewardsSkippedLog> sameFloorLogs = RewardsSkippedLog.rewardsSkippedLog.stream().filter(l -> l.floor == log.floor).collect(Collectors.toList());
+            if (sameFloorLogs.size() > 0) {
+                RewardsSkippedLog existingLog = sameFloorLogs.get(0);
+                existingLog.relics.addAll(log.relics);
+                existingLog.potions.addAll(log.potions);
+            }
+            else {
+                RewardsSkippedLog.rewardsSkippedLog.add(log);
             }
         }
     }
