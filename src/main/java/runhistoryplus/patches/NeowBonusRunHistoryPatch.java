@@ -16,6 +16,7 @@ import com.megacrit.cardcrawl.helpers.*;
 import com.megacrit.cardcrawl.localization.CharacterStrings;
 import com.megacrit.cardcrawl.metrics.Metrics;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
+import com.megacrit.cardcrawl.neow.NeowEvent;
 import com.megacrit.cardcrawl.neow.NeowReward;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
@@ -30,6 +31,8 @@ import javassist.expr.NewExpr;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import runhistoryplus.savables.NeowBonusLog;
+import runhistoryplus.savables.NeowBonusesSkippedLog;
+import runhistoryplus.savables.NeowCostsSkippedLog;
 import runhistoryplus.savables.RewardsSkippedLog;
 
 import java.lang.reflect.Field;
@@ -69,6 +72,18 @@ public class NeowBonusRunHistoryPatch {
             CtField field = CtField.make(fieldSource, runData);
 
             runData.addField(field);
+
+            String fieldSource2 = "public java.util.List neow_bonuses_skipped_log;";
+
+            CtField field2 = CtField.make(fieldSource2, runData);
+
+            runData.addField(field2);
+
+            String fieldSource3 = "public java.util.List neow_costs_skipped_log;";
+
+            CtField field3 = CtField.make(fieldSource3, runData);
+
+            runData.addField(field3);
         }
     }
 
@@ -80,6 +95,8 @@ public class NeowBonusRunHistoryPatch {
         @SpirePostfixPatch
         public static void initializeNeowBonusLog() {
             NeowBonusLog.neowBonusLog = null;
+            NeowBonusesSkippedLog.neowBonusesSkippedLog = null;
+            NeowCostsSkippedLog.neowCostsSkippedLog = null;
         }
     }
 
@@ -137,13 +154,30 @@ public class NeowBonusRunHistoryPatch {
         public static void displayNeowBonusTooltip(RunHistoryScreen __instance) throws NoSuchFieldException, IllegalAccessException {
             Hitbox hb = NeowBonusHitboxField.neowBonusHitbox.get(__instance);
             hb.update();
-            String text = getNeowBlessingDescription(__instance);
+            String text = getTooltipText(__instance);
             if (hb.hovered && text != null) {
                 CardCrawlGame.cursor.changeType(GameCursor.CursorType.INSPECT);
                 float tipX = hb.x;
                 float tipY = hb.y - 40.0F * Settings.scale;
                 String header = TEXT[0];
                 TipHelper.renderGenericTip(tipX, tipY, header, text);
+            }
+        }
+    }
+
+    @SpirePatch(clz = NeowEvent.class, method = "buttonEffect")
+    public static class AddLoggingForNeowBonusesSkipped {
+        @SpirePrefixPatch
+        public static void addLoggingForNeowBonusesSkipped(NeowEvent __instance, int buttonPressed) {
+            int screenNum = ReflectionHacks.getPrivate(__instance, NeowEvent.class, "screenNum");
+            if (screenNum == 3) {
+                ArrayList<NeowReward> rewards = ReflectionHacks.getPrivate(__instance, NeowEvent.class, "rewards");
+                if (buttonPressed < rewards.size()) {
+                    ArrayList<NeowReward> skippedRewards = new ArrayList<>(rewards);
+                    skippedRewards.remove(buttonPressed);
+                    NeowBonusesSkippedLog.neowBonusesSkippedLog = skippedRewards.stream().map(r -> r.type.name()).collect(Collectors.toList());
+                    NeowCostsSkippedLog.neowCostsSkippedLog = skippedRewards.stream().map(r -> r.drawback.name()).collect(Collectors.toList());
+                }
             }
         }
     }
@@ -273,8 +307,12 @@ public class NeowBonusRunHistoryPatch {
     public static class GatherAllDataPatch {
         @SpirePostfixPatch
         public static void gatherAllDataPatch(Metrics __instance, boolean death, boolean trueVictor, MonsterGroup monsters) {
-                ReflectionHacks.privateMethod(Metrics.class, "addData", Object.class, Object.class)
-                        .invoke(__instance, "neow_bonus_log", NeowBonusLog.neowBonusLog);
+            ReflectionHacks.privateMethod(Metrics.class, "addData", Object.class, Object.class)
+                    .invoke(__instance, "neow_bonus_log", NeowBonusLog.neowBonusLog);
+            ReflectionHacks.privateMethod(Metrics.class, "addData", Object.class, Object.class)
+                    .invoke(__instance, "neow_bonuses_skipped_log", NeowBonusesSkippedLog.neowBonusesSkippedLog);
+            ReflectionHacks.privateMethod(Metrics.class, "addData", Object.class, Object.class)
+                    .invoke(__instance, "neow_costs_skipped_log", NeowCostsSkippedLog.neowCostsSkippedLog);
         }
     }
 
@@ -372,6 +410,29 @@ public class NeowBonusRunHistoryPatch {
     }
 
     @SuppressWarnings("unchecked")
+    public static String getTooltipText(RunHistoryScreen screen) throws NoSuchFieldException, IllegalAccessException {
+        RunData runData = ReflectionHacks.getPrivate(screen, RunHistoryScreen.class, "viewedRun");
+        StringBuilder sb = new StringBuilder();
+
+        String neowBonusDescription = getNeowBlessingDescription(screen);
+        sb.append(neowBonusDescription);
+
+        Field bonusesField = runData.getClass().getField("neow_bonuses_skipped_log");
+        Field costsField = runData.getClass().getField("neow_costs_skipped_log");
+        List<String> neowBonusesSkippedLog = (List<String>)bonusesField.get(runData);
+        List<String> neowCostsSkippedLog = (List<String>)costsField.get(runData);
+        if (neowBonusesSkippedLog != null && neowCostsSkippedLog != null && !neowBonusesSkippedLog.isEmpty() && neowBonusesSkippedLog.size() == neowCostsSkippedLog.size()) {
+            sb.append(" NL ").append(TEXT[4]);
+            for (int i = 0; i < neowBonusesSkippedLog.size(); i++) {
+                sb.append(" NL ").append(" TAB ").append(getNeowBonusText(neowBonusesSkippedLog.get(i), neowCostsSkippedLog.get(i)));
+            }
+        }
+
+        String s = sb.toString();
+        return s.length() != 0 ? s : null;
+    }
+
+    @SuppressWarnings("unchecked")
     public static String getNeowBlessingDescription(RunHistoryScreen screen) throws NoSuchFieldException, IllegalAccessException {
         RunData runData = ReflectionHacks.getPrivate(screen, RunHistoryScreen.class, "viewedRun");
         Field field = runData.getClass().getField("neow_bonus_log");
@@ -464,6 +525,6 @@ public class NeowBonusRunHistoryPatch {
         if (s.endsWith(nl)) {
             s = s.substring(0, s.length() - nl.length());
         }
-        return s.length() != 0 ? s : null;
+        return s;
     }
 }
