@@ -152,7 +152,7 @@ public class PotionUseAndDiscardRunHistoryPatch {
     public static class FairyPotionUseAddLoggingPatch {
         @SpirePostfixPatch
         public static void fairyPotionUseAddLogging(FairyPotion potion, AbstractCreature target) {
-            if (PotionUseLog.potion_use_per_floor != null) {
+            if (PotionUseLog.potion_use_per_floor != null && AbstractDungeon.floorNum > 0) {
                 PotionUseLog.potion_use_per_floor.get(PotionUseLog.potion_use_per_floor.size() - 1).add(potion.ID);
             }
         }
@@ -163,7 +163,7 @@ public class PotionUseAndDiscardRunHistoryPatch {
         @SpireInsertPatch(locator = Locator.class)
         public static void potionDiscardAddLogging(PotionPopUp __instance) {
             AbstractPotion potion = ReflectionHacks.getPrivate(__instance, PotionPopUp.class, "potion");
-            if (PotionDiscardLog.potion_discard_per_floor != null) {
+            if (PotionDiscardLog.potion_discard_per_floor != null && AbstractDungeon.floorNum > 0) {
                 List<String> l = PotionDiscardLog.potion_discard_per_floor.get(PotionDiscardLog.potion_discard_per_floor.size() - 1);
                 if (l != null) {
                     l.add(potion.ID);
