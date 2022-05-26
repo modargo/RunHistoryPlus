@@ -7,9 +7,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.helpers.Hitbox;
-import com.megacrit.cardcrawl.helpers.ImageMaster;
-import com.megacrit.cardcrawl.helpers.RelicLibrary;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
+import com.megacrit.cardcrawl.relics.AbstractRelic;
 import runhistoryplus.utils.ExtraColors;
 
 public class RelicUIObject {
@@ -17,6 +16,7 @@ public class RelicUIObject {
     private Hitbox hb;
 
     public String relicID;
+    private String relicName;
     private float x, y, scroll;
     private Texture tex;
     private static final Texture TEX_SELECTED_BG = new Texture("runhistoryplus/images/relic_bg.png");
@@ -25,9 +25,10 @@ public class RelicUIObject {
     public boolean isEnabled = false;
     private RelicFilterScreen parent;
 
-    public RelicUIObject(RelicFilterScreen parent, String relicID, float x, float y) {
-        this.relicID = relicID;
-        this.tex = RelicLibrary.getRelic(relicID).img;
+    public RelicUIObject(RelicFilterScreen parent, AbstractRelic relic, float x, float y) {
+        this.relicID = relic.relicId;
+        this.tex = relic.img;
+        this.relicName = relic.name;
         this.x = x;
         this.y = y;
         this.parent = parent;
@@ -130,6 +131,5 @@ public class RelicUIObject {
             hb.clicked = false;
             handleClick();
         }
-
     }
 }

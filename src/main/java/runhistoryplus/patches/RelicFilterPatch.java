@@ -41,9 +41,7 @@ public class RelicFilterPatch {
 //            cardFilterButton.update();
 
             if (relicFilterButton.hb.clickStarted) {
-                relicScreen.isShowing = true;
-                relicScreen.initialRelics.clear();
-                relicScreen.initialRelics.addAll(relicScreen.selectedRelics);
+                relicScreen.show();
             }
             if (relicScreen.isShowing){
                 relicScreen.update();
@@ -90,8 +88,19 @@ public class RelicFilterPatch {
         )
         public static void Insert(RunHistoryScreen __instance, ArrayList<RunData> filteredRuns) {
             if (relicScreen.selectedRelics.size() > 0){
-                for (String relicId: relicScreen.selectedRelics) {
-                    filteredRuns.removeIf(r -> !r.relics.contains(relicId));
+                if (relicScreen.isOrFilterEnabled){
+                    ArrayList<RunData> newFilteredRuns = new ArrayList<>();
+                    for (RunData run: filteredRuns) {
+                        for (String relic: relicScreen.selectedRelics) {
+                            if (run.relics.contains(relic)){
+                                newFilteredRuns.add(run);
+                                break;
+                            }
+                        }
+                    }
+                    filteredRuns.removeIf(r -> !newFilteredRuns.contains(r));
+                } else {
+                    filteredRuns.removeIf(r -> !r.relics.containsAll(relicScreen.selectedRelics));
                 }
             }
         }

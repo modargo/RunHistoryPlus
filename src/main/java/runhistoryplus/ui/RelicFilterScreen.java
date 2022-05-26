@@ -1,15 +1,15 @@
 package runhistoryplus.ui;
 
+import basemod.ModLabeledToggleButton;
+import basemod.ModToggleButton;
+import basemod.ReflectionHacks;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
-import com.megacrit.cardcrawl.helpers.FontHelper;
-import com.megacrit.cardcrawl.helpers.ImageMaster;
-import com.megacrit.cardcrawl.helpers.MathHelper;
-import com.megacrit.cardcrawl.helpers.RelicLibrary;
+import com.megacrit.cardcrawl.helpers.*;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.screens.mainMenu.ScrollBar;
@@ -20,14 +20,22 @@ import runhistoryplus.utils.ExtraFonts;
 import java.util.*;
 
 public class RelicFilterScreen implements ScrollBarListener {
-    private TreeSet<String> relics = new TreeSet<>();
+    private TreeSet<AbstractRelic> relics = new TreeSet<>();
     private HashMap<String, RelicUIObject> relicUIObjects = new HashMap<>();
     private Texture TEX_BG = new Texture("runhistoryplus/images/config_screen_bg.png");
     private ActionButton returnButton = new ActionButton(256, 200, "Close");
     public ArrayList<String> selectedRelics = new ArrayList<>();
     public boolean isShowing = false;
     public final int RELICS_PER_ROW = 7;
-    public ArrayList<String> initialRelics = new ArrayList<>();
+    ModLabeledToggleButton orFilterToggle;
+    public boolean isOrFilterEnabled;
+
+    // values to check to reload the runs
+    private boolean onLoadOrFilterValue = false;
+    private ArrayList<String> onLoadSelectedRelics = new ArrayList<>();
+
+    private static final float INFO_LEFT = 1140.0f;
+    private static final float INFO_BOTTOM_CHECK = 670.0f;
 
     // Position
     public float x;
@@ -110,7 +118,7 @@ public class RelicFilterScreen implements ScrollBarListener {
     //  End scroll functions
 
     private void populateRelics() {
-        ArrayList<String> relics = new ArrayList<>();
+        ArrayList<String> relicPool = new ArrayList<>();
         AbstractRelic.RelicTier[] tiers = new AbstractRelic.RelicTier[] {
                 AbstractRelic.RelicTier.COMMON,
                 AbstractRelic.RelicTier.UNCOMMON,
@@ -129,12 +137,17 @@ public class RelicFilterScreen implements ScrollBarListener {
 
         for (AbstractRelic.RelicTier tier: tiers) {
             for (AbstractPlayer.PlayerClass c: classes){
-                RelicLibrary.populateRelicPool(relics, tier, c);
+                RelicLibrary.populateRelicPool(relicPool, tier, c);
             }
         }
 
-        HashSet<String> unique = new HashSet<>(relics);
-        this.relics.addAll(unique);
+        List<AbstractRelic> relicObjects = new ArrayList<>();
+        for (String relicId: relicPool) {
+            AbstractRelic relic = RelicLibrary.getRelic(relicId);
+            relicObjects.add(relic);
+        }
+        relicObjects.sort(Comparator.comparing(relic -> relic.name));
+        this.relics.addAll(relicObjects);
     }
 
     private void makeUIObjects() {
@@ -147,11 +160,11 @@ public class RelicFilterScreen implements ScrollBarListener {
         int ix = 0;
         int iy = 0;
 
-        for (String id : relics) {
+        for (AbstractRelic relic : relics) {
             float tx = left + ix * spacing;
             float ty = top - iy * spacing;
 
-            relicUIObjects.put(id, new RelicUIObject(this, id, tx, ty));
+            relicUIObjects.put(relic.relicId, new RelicUIObject(this, relic, tx, ty));
 
             ix++;
             if (ix == RELICS_PER_ROW) {
@@ -159,6 +172,30 @@ public class RelicFilterScreen implements ScrollBarListener {
                 iy++;
             }
         }
+
+        orFilterToggle = new ModLabeledToggleButton("Use OR filter instead of AND",
+                INFO_LEFT,         // NOTE: no scaling! (ModLabeledToggleButton scales later)
+                INFO_BOTTOM_CHECK, // same as above
+                Settings.CREAM_COLOR,
+                FontHelper.charDescFont,
+                false,
+                null,
+                (modLabel) -> {},
+                (button) -> isOrFilterEnabled = button.enabled
+        ) {
+            // Override the update of the toggle button to add an informational tool tip when hovered
+            @Override
+            public void update() {
+                super.update();
+
+                // Unfortunately, the hb is private so we have to use reflection here
+                Hitbox hb = ReflectionHacks.getPrivate(toggle, ModToggleButton.class, "hb");
+
+                if (hb != null && hb.hovered) {
+                    TipHelper.renderGenericTip(INFO_LEFT * Settings.scale, (INFO_BOTTOM_CHECK - 40.0f) * Settings.scale, "Info", "If checked, run history will check if any of the selected Relics were obtained in the run. NL NL If unchecked, run history will require that all of the selected Relics were obtained in the run.");
+                }
+            }
+        };
     }
 
     private void setup() {
@@ -176,6 +213,8 @@ public class RelicFilterScreen implements ScrollBarListener {
             }
         }
 
+        orFilterToggle.render(sb);
+
         this.returnButton.render(sb);
         this.scrollBar.render(sb);
 
@@ -184,7 +223,7 @@ public class RelicFilterScreen implements ScrollBarListener {
         float titleBottom = 819.0f;
         FontHelper.renderFontLeftDownAligned(sb, ExtraFonts.configTitleFont(), "Relic List", titleLeft * Settings.xScale, titleBottom * Settings.yScale, Settings.GOLD_COLOR);
         float infoLeft = 1160.0f;
-        float infoTopMain = 667.0f;
+        float infoTopMain = 640.0f;
         float infoTopControls = 472.0f;
 
         FontHelper.renderSmartText(sb,
@@ -227,6 +266,7 @@ public class RelicFilterScreen implements ScrollBarListener {
         for (RelicUIObject relicObject : relicUIObjects.values()) {
             relicObject.isEnabled = false;
         }
+        this.isOrFilterEnabled = false;
     }
 
     public void render(SpriteBatch sb) {
@@ -252,10 +292,15 @@ public class RelicFilterScreen implements ScrollBarListener {
             relicObject.scroll(this.scrollY);
         }
 
+        orFilterToggle.update();
+
         if (this.returnButton.hb.clickStarted){
             enableHitboxes(false);
-            if (this.initialRelics.size() != this.selectedRelics.size() ||
-                    !this.initialRelics.equals(this.selectedRelics)) {
+
+            // only refresh the run history if any changes were actually made
+            if (this.onLoadSelectedRelics.size() != this.selectedRelics.size() ||
+                    !this.onLoadSelectedRelics.equals(this.selectedRelics) ||
+                    this.onLoadOrFilterValue != this.isOrFilterEnabled) {
                 CardCrawlGame.mainMenuScreen.runHistoryScreen.refreshData();
             }
         }
@@ -264,6 +309,14 @@ public class RelicFilterScreen implements ScrollBarListener {
         if (!isDraggingScrollBar){
             updateScrolling();
         }
+    }
+
+    public void show(){
+        this.isShowing = true;
+        this.onLoadSelectedRelics.clear();
+        this.onLoadSelectedRelics.addAll(this.selectedRelics);
+        this.onLoadOrFilterValue = this.isOrFilterEnabled;
+        this.orFilterToggle.toggle.enabled = this.onLoadOrFilterValue;
     }
 
     // --------------------------------------------------------------------------------
