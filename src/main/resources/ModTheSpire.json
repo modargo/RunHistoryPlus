@@ -1,7 +1,7 @@
 {
   "modid": "RunHistoryPlus",
   "name": "Run History Plus",
-  "author_list": ["modargo"],
+  "author_list": ["modargo", "beeyee"],
   "description": "Adds additional information to run history.",
   "version": "1.1.0",
   "sts_version": "03-07-2022",
