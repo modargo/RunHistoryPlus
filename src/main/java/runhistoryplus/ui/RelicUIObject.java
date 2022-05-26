@@ -8,6 +8,7 @@ import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.helpers.ImageMaster;
+import com.megacrit.cardcrawl.helpers.RelicLibrary;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
 import runhistoryplus.utils.ExtraColors;
 
@@ -26,7 +27,7 @@ public class RelicUIObject {
 
     public RelicUIObject(RelicFilterScreen parent, String relicID, float x, float y) {
         this.relicID = relicID;
-        this.tex = ImageMaster.getRelicImg(relicID);
+        this.tex = RelicLibrary.getRelic(relicID).img;
         this.x = x;
         this.y = y;
         this.parent = parent;
