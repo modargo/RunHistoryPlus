@@ -22,7 +22,7 @@ import java.util.*;
 public class RelicFilterScreen implements ScrollBarListener {
     private TreeSet<String> relics = new TreeSet<>();
     private HashMap<String, RelicUIObject> relicUIObjects = new HashMap<>();
-    private Texture TEX_BG = new Texture("images/config_screen_bg.png");
+    private Texture TEX_BG = new Texture("runhistoryplus/images/config_screen_bg.png");
     private ActionButton returnButton = new ActionButton(256, 200, "Close");
     public ArrayList<String> selectedRelics = new ArrayList<>();
     public boolean isShowing = false;

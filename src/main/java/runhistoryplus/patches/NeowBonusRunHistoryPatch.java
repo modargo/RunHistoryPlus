@@ -413,18 +413,19 @@ public class NeowBonusRunHistoryPatch {
     public static String getTooltipText(RunHistoryScreen screen) throws NoSuchFieldException, IllegalAccessException {
         RunData runData = ReflectionHacks.getPrivate(screen, RunHistoryScreen.class, "viewedRun");
         StringBuilder sb = new StringBuilder();
+        if (runData != null){
+            String neowBonusDescription = getNeowBlessingDescription(screen);
+            sb.append(neowBonusDescription);
 
-        String neowBonusDescription = getNeowBlessingDescription(screen);
-        sb.append(neowBonusDescription);
-
-        Field bonusesField = runData.getClass().getField("neow_bonuses_skipped_log");
-        Field costsField = runData.getClass().getField("neow_costs_skipped_log");
-        List<String> neowBonusesSkippedLog = (List<String>)bonusesField.get(runData);
-        List<String> neowCostsSkippedLog = (List<String>)costsField.get(runData);
-        if (neowBonusesSkippedLog != null && neowCostsSkippedLog != null && !neowBonusesSkippedLog.isEmpty() && neowBonusesSkippedLog.size() == neowCostsSkippedLog.size()) {
-            sb.append(" NL ").append(TEXT[4]);
-            for (int i = 0; i < neowBonusesSkippedLog.size(); i++) {
-                sb.append(" NL ").append(" TAB ").append(getNeowBonusText(neowBonusesSkippedLog.get(i), neowCostsSkippedLog.get(i)));
+            Field bonusesField = runData.getClass().getField("neow_bonuses_skipped_log");
+            Field costsField = runData.getClass().getField("neow_costs_skipped_log");
+            List<String> neowBonusesSkippedLog = (List<String>)bonusesField.get(runData);
+            List<String> neowCostsSkippedLog = (List<String>)costsField.get(runData);
+            if (neowBonusesSkippedLog != null && neowCostsSkippedLog != null && !neowBonusesSkippedLog.isEmpty() && neowBonusesSkippedLog.size() == neowCostsSkippedLog.size()) {
+                sb.append(" NL ").append(TEXT[4]);
+                for (int i = 0; i < neowBonusesSkippedLog.size(); i++) {
+                    sb.append(" NL ").append(" TAB ").append(getNeowBonusText(neowBonusesSkippedLog.get(i), neowCostsSkippedLog.get(i)));
+                }
             }
         }
 
@@ -435,96 +436,99 @@ public class NeowBonusRunHistoryPatch {
     @SuppressWarnings("unchecked")
     public static String getNeowBlessingDescription(RunHistoryScreen screen) throws NoSuchFieldException, IllegalAccessException {
         RunData runData = ReflectionHacks.getPrivate(screen, RunHistoryScreen.class, "viewedRun");
-        Field field = runData.getClass().getField("neow_bonus_log");
-        NeowBonusLog neowBonusLog = (NeowBonusLog)field.get(runData);
-        if (neowBonusLog == null) {
-            neowBonusLog = new NeowBonusLog();
-        }
-
-        List<CardChoiceStats> neowCardChoices = runData.card_choices.stream().filter(cc -> cc.floor == 0).collect(Collectors.toList());
-        List<String> neowCardsObtained = neowCardChoices.stream().map(cc -> cc.picked).collect(Collectors.toList());
-        List<String> allCardsObtained = new ArrayList<>();
-        allCardsObtained.addAll(neowBonusLog.cardsObtained);
-        allCardsObtained.addAll(neowCardsObtained);
-        List<String> neowCardsNotTaken = neowCardChoices.stream().map(cc -> cc.not_picked).flatMap(Collection::stream).collect(Collectors.toList());
-
-        List<String> neowPotionsObtained = runData.potions_obtained.stream().filter(po -> po.floor == 0).map(po -> po.key).collect(Collectors.toList());
-
-        Field rewardsSkippedField = runData.getClass().getField("rewards_skipped");
-        List<RewardsSkippedLog> rewardsSkippedLog = (List<RewardsSkippedLog>)rewardsSkippedField.get(runData);
-        List<String> neowPotionsNotTaken = rewardsSkippedLog != null ? rewardsSkippedLog.stream().filter(r -> r.floor == 0).map(r -> r.potions).flatMap(Collection::stream).collect(Collectors.toList()) : new ArrayList<>();
-        
-        StringBuilder sb = new StringBuilder();
-        String nl = " NL ";
-        String tab = " TAB ";
-
-        if (neowBonusLog.maxHpLost != 0) {
-            sb.append(TEXT_LOST).append(String.format(TEXT_GENERIC_MAX_HP_FORMAT, neowBonusLog.maxHpLost)).append(nl);
-        }
-
-        if (neowBonusLog.damageTaken != 0) {
-            sb.append(TEXT_TOOK).append(String.format(TEXT_EVENT_DAMAGE, neowBonusLog.damageTaken)).append(nl);
-        }
-
-        if (neowBonusLog.goldLost != 0) {
-            sb.append(TEXT_LOST).append(String.format(TEXT_GOLD_FORMAT, neowBonusLog.goldLost)).append(nl);
-        }
-
-        if (neowBonusLog.maxHpGained != 0) {
-            sb.append(TEXT_GAINED).append(String.format(TEXT_GENERIC_MAX_HP_FORMAT, neowBonusLog.maxHpGained)).append(nl);
-        }
-
-        if (neowBonusLog.goldGained != 0) {
-            sb.append(TEXT_GAINED).append(String.format(TEXT_GOLD_FORMAT, neowBonusLog.goldGained)).append(nl);
-        }
-
-        for (String cardMetricID : neowBonusLog.cardsRemoved) {
-            String cardName = CardLibrary.getCardNameFromMetricID(cardMetricID);
-            sb.append(String.format(TEXT_REMOVE_OPTION, cardName)).append(nl);
-        }
-
-        for (String cardMetricID : neowBonusLog.cardsUpgraded) {
-            String cardName = CardLibrary.getCardNameFromMetricID(cardMetricID);
-            sb.append(String.format(TEXT_UPGRADED, cardName)).append(nl);
-        }
-
-        for (String cardMetricID : neowBonusLog.cardsTransformed) {
-            String cardName = CardLibrary.getCardNameFromMetricID(cardMetricID);
-            sb.append(String.format(TEXT_TRANSFORMED, cardName)).append(nl);
-        }
-
-        if (!allCardsObtained.isEmpty() || !neowCardsObtained.isEmpty() || !neowBonusLog.relicsObtained.isEmpty() || !neowPotionsObtained.isEmpty()) {
-            sb.append(TEXT_OBTAIN_HEADER).append(nl);
-            for (String relicID : neowBonusLog.relicsObtained) {
-                String relicName = RelicLibrary.getRelic(relicID).name;
-                sb.append(tab).append(TEXT_OBTAIN_TYPE_RELIC).append(relicName).append(nl);
+        if (runData != null){
+            Field field = runData.getClass().getField("neow_bonus_log");
+            NeowBonusLog neowBonusLog = (NeowBonusLog)field.get(runData);
+            if (neowBonusLog == null) {
+                neowBonusLog = new NeowBonusLog();
             }
-            for (String cardMetricID : allCardsObtained) {
+
+            List<CardChoiceStats> neowCardChoices = runData.card_choices.stream().filter(cc -> cc.floor == 0).collect(Collectors.toList());
+            List<String> neowCardsObtained = neowCardChoices.stream().map(cc -> cc.picked).collect(Collectors.toList());
+            List<String> allCardsObtained = new ArrayList<>();
+            allCardsObtained.addAll(neowBonusLog.cardsObtained);
+            allCardsObtained.addAll(neowCardsObtained);
+            List<String> neowCardsNotTaken = neowCardChoices.stream().map(cc -> cc.not_picked).flatMap(Collection::stream).collect(Collectors.toList());
+
+            List<String> neowPotionsObtained = runData.potions_obtained.stream().filter(po -> po.floor == 0).map(po -> po.key).collect(Collectors.toList());
+
+            Field rewardsSkippedField = runData.getClass().getField("rewards_skipped");
+            List<RewardsSkippedLog> rewardsSkippedLog = (List<RewardsSkippedLog>)rewardsSkippedField.get(runData);
+            List<String> neowPotionsNotTaken = rewardsSkippedLog != null ? rewardsSkippedLog.stream().filter(r -> r.floor == 0).map(r -> r.potions).flatMap(Collection::stream).collect(Collectors.toList()) : new ArrayList<>();
+
+            StringBuilder sb = new StringBuilder();
+            String nl = " NL ";
+            String tab = " TAB ";
+
+            if (neowBonusLog.maxHpLost != 0) {
+                sb.append(TEXT_LOST).append(String.format(TEXT_GENERIC_MAX_HP_FORMAT, neowBonusLog.maxHpLost)).append(nl);
+            }
+
+            if (neowBonusLog.damageTaken != 0) {
+                sb.append(TEXT_TOOK).append(String.format(TEXT_EVENT_DAMAGE, neowBonusLog.damageTaken)).append(nl);
+            }
+
+            if (neowBonusLog.goldLost != 0) {
+                sb.append(TEXT_LOST).append(String.format(TEXT_GOLD_FORMAT, neowBonusLog.goldLost)).append(nl);
+            }
+
+            if (neowBonusLog.maxHpGained != 0) {
+                sb.append(TEXT_GAINED).append(String.format(TEXT_GENERIC_MAX_HP_FORMAT, neowBonusLog.maxHpGained)).append(nl);
+            }
+
+            if (neowBonusLog.goldGained != 0) {
+                sb.append(TEXT_GAINED).append(String.format(TEXT_GOLD_FORMAT, neowBonusLog.goldGained)).append(nl);
+            }
+
+            for (String cardMetricID : neowBonusLog.cardsRemoved) {
                 String cardName = CardLibrary.getCardNameFromMetricID(cardMetricID);
-                sb.append(tab).append(TEXT_OBTAIN_TYPE_CARD).append(cardName).append(nl);
+                sb.append(String.format(TEXT_REMOVE_OPTION, cardName)).append(nl);
             }
-            for (String potionID : neowPotionsObtained) {
-                String potionName = PotionHelper.getPotion(potionID).name;
-                sb.append(tab).append(TEXT_OBTAIN_TYPE_POTION).append(potionName).append(nl);
-            }
-        }
 
-        if (!neowCardsNotTaken.isEmpty() || !neowPotionsNotTaken.isEmpty()) {
-            sb.append(TEXT_SKIP_HEADER).append(nl);
-            for (String cardMetricID : neowCardsNotTaken) {
+            for (String cardMetricID : neowBonusLog.cardsUpgraded) {
                 String cardName = CardLibrary.getCardNameFromMetricID(cardMetricID);
-                sb.append(tab).append(TEXT_OBTAIN_TYPE_CARD).append(cardName).append(nl);
+                sb.append(String.format(TEXT_UPGRADED, cardName)).append(nl);
             }
-            for (String potionID : neowPotionsNotTaken) {
-                String potionName = PotionHelper.getPotion(potionID).name;
-                sb.append(tab).append(TEXT_OBTAIN_TYPE_POTION).append(potionName).append(nl);
-            }
-        }
 
-        String s = sb.toString();
-        if (s.endsWith(nl)) {
-            s = s.substring(0, s.length() - nl.length());
+            for (String cardMetricID : neowBonusLog.cardsTransformed) {
+                String cardName = CardLibrary.getCardNameFromMetricID(cardMetricID);
+                sb.append(String.format(TEXT_TRANSFORMED, cardName)).append(nl);
+            }
+
+            if (!allCardsObtained.isEmpty() || !neowCardsObtained.isEmpty() || !neowBonusLog.relicsObtained.isEmpty() || !neowPotionsObtained.isEmpty()) {
+                sb.append(TEXT_OBTAIN_HEADER).append(nl);
+                for (String relicID : neowBonusLog.relicsObtained) {
+                    String relicName = RelicLibrary.getRelic(relicID).name;
+                    sb.append(tab).append(TEXT_OBTAIN_TYPE_RELIC).append(relicName).append(nl);
+                }
+                for (String cardMetricID : allCardsObtained) {
+                    String cardName = CardLibrary.getCardNameFromMetricID(cardMetricID);
+                    sb.append(tab).append(TEXT_OBTAIN_TYPE_CARD).append(cardName).append(nl);
+                }
+                for (String potionID : neowPotionsObtained) {
+                    String potionName = PotionHelper.getPotion(potionID).name;
+                    sb.append(tab).append(TEXT_OBTAIN_TYPE_POTION).append(potionName).append(nl);
+                }
+            }
+
+            if (!neowCardsNotTaken.isEmpty() || !neowPotionsNotTaken.isEmpty()) {
+                sb.append(TEXT_SKIP_HEADER).append(nl);
+                for (String cardMetricID : neowCardsNotTaken) {
+                    String cardName = CardLibrary.getCardNameFromMetricID(cardMetricID);
+                    sb.append(tab).append(TEXT_OBTAIN_TYPE_CARD).append(cardName).append(nl);
+                }
+                for (String potionID : neowPotionsNotTaken) {
+                    String potionName = PotionHelper.getPotion(potionID).name;
+                    sb.append(tab).append(TEXT_OBTAIN_TYPE_POTION).append(potionName).append(nl);
+                }
+            }
+
+            String s = sb.toString();
+            if (s.endsWith(nl)) {
+                s = s.substring(0, s.length() - nl.length());
+            }
+            return s;
         }
-        return s;
+        return "";
     }
 }

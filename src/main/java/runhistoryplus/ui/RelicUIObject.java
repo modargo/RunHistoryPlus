@@ -18,7 +18,7 @@ public class RelicUIObject {
     public String relicID;
     private float x, y, scroll;
     private Texture tex;
-    private static final Texture TEX_SELECTED_BG = new Texture("images/relic_bg.png");
+    private static final Texture TEX_SELECTED_BG = new Texture("runhistoryplus/images/relic_bg.png");
     private static final int HITBOX_OFFSET = 50;
 
     public boolean isEnabled = false;
