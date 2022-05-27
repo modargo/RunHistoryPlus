@@ -109,7 +109,7 @@ public class RelicFilterPatch {
 
         private static class Locator extends SpireInsertLocator {
             public int[] Locate (CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
-                Matcher finalMatcher = new Matcher.FieldAccessMatcher(RunHistoryScreen.class, "runsDropdown");
+                Matcher finalMatcher = new Matcher.NewExprMatcher(ArrayList.class);
                 return LineFinder.findInOrder(ctMethodToPatch, finalMatcher);
             }
         }
