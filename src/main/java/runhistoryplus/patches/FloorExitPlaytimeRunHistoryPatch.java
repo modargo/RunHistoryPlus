@@ -62,7 +62,7 @@ public class FloorExitPlaytimeRunHistoryPatch {
 
     @SpirePatch(clz = RunHistoryPath.class, method = "setRunData")
     public static class AddFloorExitPlaytimeDataPatch {
-        @SuppressWarnings({"rawtypes", "unchecked"})
+        @SuppressWarnings({"unchecked"})
         @SpireInsertPatch(locator = Locator.class, localvars = { "element", "i" })
         public static void addFloorExitPlaytimeData(RunHistoryPath __instance, RunData newData, RunPathElement element, int i) throws NoSuchFieldException, IllegalAccessException {
             Field field = newData.getClass().getField("floor_exit_playtime");

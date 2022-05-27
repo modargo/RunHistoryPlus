@@ -55,13 +55,13 @@ public class ExtraFonts {
     ) {
         FreeTypeFontGenerator g;
 
-        HashMap<String, FreeTypeFontGenerator> generators = (HashMap<String, FreeTypeFontGenerator>) ReflectionHacks.getPrivateStatic(FontHelper.class, "generators");
+        HashMap<String, FreeTypeFontGenerator> generators = ReflectionHacks.getPrivateStatic(FontHelper.class, "generators");
         //FileHandle fontFile = (FileHandle) ReflectionHacks.getPrivateStatic(FontHelper.class, "fontFile");
 
         FileHandle fontFile = Gdx.files.internal("font/Kreon-Bold.ttf");
 
         if (generators.containsKey(fontFile.path())) {
-            g = (FreeTypeFontGenerator)generators.get(fontFile.path());
+            g = generators.get(fontFile.path());
         } else {
             System.out.println("ERROR: this shouldn't occur!");
             // TODO: throw an exception I guess

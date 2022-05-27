@@ -14,10 +14,10 @@ import java.util.ArrayList;
 
 public class RelicFilterPatch {
     private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:FilterButtons").TEXT;
-    private static ActionButton relicFilterButton = new ActionButton(256, 400, TEXT[0]);
-    //private static ActionButton cardFilterButton = new ActionButton(256, 300, "Card Filter");
-    private static RelicFilterScreen relicScreen = new RelicFilterScreen();
-//    private static CardFilterScreen cardScreen = new CardFilterScreen();
+    private static final ActionButton relicFilterButton = new ActionButton(256, 400, TEXT[0]);
+    //private static final ActionButton cardFilterButton = new ActionButton(256, 300, "Card Filter");
+    private static final RelicFilterScreen relicScreen = new RelicFilterScreen();
+//    private static final CardFilterScreen cardScreen = new CardFilterScreen();
 
     @SpirePatch(clz= RunHistoryScreen.class, method="render")
     public static class RenderFilteredButton {
@@ -38,7 +38,7 @@ public class RelicFilterPatch {
     @SpirePatch(clz= RunHistoryScreen.class, method="update")
     public static class PreventHitboxesPatch {
         @SpirePrefixPatch
-        public static SpireReturn Prefix(RunHistoryScreen __instance) {
+        public static SpireReturn<Void> Prefix(RunHistoryScreen __instance) {
             relicFilterButton.update();
 //            cardFilterButton.update();
 

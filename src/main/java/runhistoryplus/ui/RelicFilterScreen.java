@@ -20,12 +20,13 @@ import runhistoryplus.utils.ExtraFonts;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("SuspiciousNameCombination")
 public class RelicFilterScreen implements ScrollBarListener {
     private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:RelicFilterScreen").TEXT;
-    private TreeSet<AbstractRelic> relics = new TreeSet<>();
-    private HashMap<String, RelicUIObject> relicUIObjects = new HashMap<>();
-    private Texture TEX_BG = new Texture("runhistoryplus/images/config_screen_bg.png");
-    private ActionButton returnButton = new ActionButton(256, 200, TEXT[6]);
+    private final TreeSet<AbstractRelic> relics = new TreeSet<>();
+    private final HashMap<String, RelicUIObject> relicUIObjects = new HashMap<>();
+    private final Texture TEX_BG = new Texture("runhistoryplus/images/config_screen_bg.png");
+    private final ActionButton returnButton = new ActionButton(256, 200, TEXT[6]);
     public ArrayList<String> selectedRelics = new ArrayList<>();
     public boolean isShowing = false;
     private static final int RELICS_PER_ROW = 7;
@@ -36,7 +37,7 @@ public class RelicFilterScreen implements ScrollBarListener {
 
     // values to check to reload the runs
     private boolean onLoadOrFilterValue = false;
-    private ArrayList<String> onLoadSelectedRelics = new ArrayList<>();
+    private final ArrayList<String> onLoadSelectedRelics = new ArrayList<>();
 
     private static final float INFO_LEFT = 1140.0f;
     private static final float INFO_BOTTOM_CHECK = 670.0f;
@@ -109,8 +110,7 @@ public class RelicFilterScreen implements ScrollBarListener {
 
     private void calculateScrollBounds() {
         int rows = (this.relicUIObjects.size() + RELICS_PER_ROW - 1) / RELICS_PER_ROW;
-        float upper = (SPACING * rows) - VIEW_WINDOW;
-        this.scrollUpperBound = upper;
+        this.scrollUpperBound = (SPACING * rows) - VIEW_WINDOW;
         this.scrollLowerBound = 0F;
     }
 

@@ -13,17 +13,18 @@ import runhistoryplus.utils.ExtraColors;
 
 public class RelicUIObject {
 
-    private Hitbox hb;
+    private final Hitbox hb;
 
-    public String relicID;
-    private String relicName;
-    private float x, y, scroll;
-    private Texture tex;
+    public final String relicID;
+    private final String relicName;
+    private final float x, y;
+    private float scroll;
+    private final Texture tex;
     private static final Texture TEX_SELECTED_BG = new Texture("runhistoryplus/images/relic_bg.png");
     private static final int HITBOX_OFFSET = 50;
 
     public boolean isEnabled = false;
-    private RelicFilterScreen parent;
+    private final RelicFilterScreen parent;
 
     public RelicUIObject(RelicFilterScreen parent, AbstractRelic relic, float x, float y) {
         this.relicID = relic.relicId;
