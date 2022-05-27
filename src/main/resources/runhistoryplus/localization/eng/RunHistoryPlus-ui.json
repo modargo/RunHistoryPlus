@@ -38,5 +38,21 @@
     "TEXT": [
       " #y(#{0})"
     ]
+  },
+  "RunHistoryPlus:FilterButtons": {
+    "TEXT": [
+      "Relic Filter"
+    ]
+  },
+  "RunHistoryPlus:RelicFilterScreen": {
+    "TEXT": [
+      "Relic List",
+      "This filter allows you to choose which Relics a run must have to show in the history.",
+      "Controls: NL Click to toggle NL Right+Click to select just one NL NL Shift+Click to select all NL Shift+Right+Click to clear all NL Alt+Click to invert all",
+      "Use OR filter instead of AND",
+      "Info",
+      "If checked, run history will check if any of the selected Relics were obtained in the run. NL NL If unchecked, run history will require that all of the selected Relics were obtained in the run.",
+      "Close"
+    ]
   }
 }

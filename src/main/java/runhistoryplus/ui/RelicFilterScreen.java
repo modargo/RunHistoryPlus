@@ -20,10 +20,11 @@ import runhistoryplus.utils.ExtraFonts;
 import java.util.*;
 
 public class RelicFilterScreen implements ScrollBarListener {
+    private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:RelicFilterScreen").TEXT;
     private TreeSet<AbstractRelic> relics = new TreeSet<>();
     private HashMap<String, RelicUIObject> relicUIObjects = new HashMap<>();
     private Texture TEX_BG = new Texture("runhistoryplus/images/config_screen_bg.png");
-    private ActionButton returnButton = new ActionButton(256, 200, "Close");
+    private ActionButton returnButton = new ActionButton(256, 200, TEXT[6]);
     public ArrayList<String> selectedRelics = new ArrayList<>();
     public boolean isShowing = false;
     public final int RELICS_PER_ROW = 7;
@@ -173,7 +174,7 @@ public class RelicFilterScreen implements ScrollBarListener {
             }
         }
 
-        orFilterToggle = new ModLabeledToggleButton("Use OR filter instead of AND",
+        orFilterToggle = new ModLabeledToggleButton(TEXT[3],
                 INFO_LEFT,         // NOTE: no scaling! (ModLabeledToggleButton scales later)
                 INFO_BOTTOM_CHECK, // same as above
                 Settings.CREAM_COLOR,
@@ -192,7 +193,7 @@ public class RelicFilterScreen implements ScrollBarListener {
                 Hitbox hb = ReflectionHacks.getPrivate(toggle, ModToggleButton.class, "hb");
 
                 if (hb != null && hb.hovered) {
-                    TipHelper.renderGenericTip(INFO_LEFT * Settings.scale, (INFO_BOTTOM_CHECK - 40.0f) * Settings.scale, "Info", "If checked, run history will check if any of the selected Relics were obtained in the run. NL NL If unchecked, run history will require that all of the selected Relics were obtained in the run.");
+                    TipHelper.renderGenericTip(INFO_LEFT * Settings.scale, (INFO_BOTTOM_CHECK - 40.0f) * Settings.scale, TEXT[4], TEXT[5]);
                 }
             }
         };
@@ -221,14 +222,14 @@ public class RelicFilterScreen implements ScrollBarListener {
         // Title text
         float titleLeft = 386.0f;
         float titleBottom = 819.0f;
-        FontHelper.renderFontLeftDownAligned(sb, ExtraFonts.configTitleFont(), "Relic List", titleLeft * Settings.xScale, titleBottom * Settings.yScale, Settings.GOLD_COLOR);
+        FontHelper.renderFontLeftDownAligned(sb, ExtraFonts.configTitleFont(), TEXT[0], titleLeft * Settings.xScale, titleBottom * Settings.yScale, Settings.GOLD_COLOR);
         float infoLeft = 1160.0f;
         float infoTopMain = 640.0f;
         float infoTopControls = 472.0f;
 
         FontHelper.renderSmartText(sb,
                 FontHelper.tipBodyFont,
-                "This filter allows you to choose which Relics a run must have to show in the history.",
+                TEXT[1],
                 infoLeft * Settings.xScale,
                 infoTopMain * Settings.yScale,
                 371.0f * Settings.xScale,
@@ -237,7 +238,7 @@ public class RelicFilterScreen implements ScrollBarListener {
 
         FontHelper.renderSmartText(sb,
                 FontHelper.tipBodyFont,
-                "Controls: NL Click to toggle NL Right+Click to select just one NL NL Shift+Click to select all NL Shift+Right+Click to clear all NL Alt+Click to invert all",
+                TEXT[2],
                 infoLeft * Settings.xScale,
                 infoTopControls * Settings.yScale,
                 371.0f * Settings.xScale,

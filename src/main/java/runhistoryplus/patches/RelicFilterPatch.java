@@ -2,6 +2,7 @@ package runhistoryplus.patches;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
+import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.screens.runHistory.RunHistoryScreen;
 import com.megacrit.cardcrawl.screens.stats.RunData;
 import javassist.CannotCompileException;
@@ -12,7 +13,8 @@ import runhistoryplus.ui.RelicFilterScreen;
 import java.util.ArrayList;
 
 public class RelicFilterPatch {
-    private static ActionButton relicFilterButton = new ActionButton(256, 400, "Relic Filter");
+    private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:FilterButtons").TEXT;
+    private static ActionButton relicFilterButton = new ActionButton(256, 400, TEXT[0]);
     //private static ActionButton cardFilterButton = new ActionButton(256, 300, "Card Filter");
     private static RelicFilterScreen relicScreen = new RelicFilterScreen();
 //    private static CardFilterScreen cardScreen = new CardFilterScreen();
