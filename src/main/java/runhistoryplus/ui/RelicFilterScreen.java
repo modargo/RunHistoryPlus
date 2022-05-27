@@ -31,7 +31,7 @@ public class RelicFilterScreen implements ScrollBarListener {
     private static final int RELICS_PER_ROW = 7;
     private static final float SPACING = 84.0f;
     private static final int VIEW_WINDOW = 400;
-    ModLabeledToggleButton orFilterToggle;
+    private ModLabeledToggleButton orFilterToggle;
     public boolean isOrFilterEnabled;
 
     // values to check to reload the runs
