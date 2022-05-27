@@ -28,7 +28,7 @@ public class RelicFilterScreen implements ScrollBarListener {
     private ActionButton returnButton = new ActionButton(256, 200, TEXT[6]);
     public ArrayList<String> selectedRelics = new ArrayList<>();
     public boolean isShowing = false;
-    public final int RELICS_PER_ROW = 7;
+    private static final int RELICS_PER_ROW = 7;
     private static final float SPACING = 84.0f;
     private static final int VIEW_WINDOW = 400;
     ModLabeledToggleButton orFilterToggle;
