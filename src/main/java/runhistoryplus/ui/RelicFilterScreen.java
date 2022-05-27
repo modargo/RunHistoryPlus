@@ -18,6 +18,7 @@ import runhistoryplus.utils.ExtraColors;
 import runhistoryplus.utils.ExtraFonts;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RelicFilterScreen implements ScrollBarListener {
     private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:RelicFilterScreen").TEXT;
@@ -129,12 +130,7 @@ public class RelicFilterScreen implements ScrollBarListener {
                 AbstractRelic.RelicTier.SPECIAL
         };
 
-        AbstractPlayer.PlayerClass[] classes = new AbstractPlayer.PlayerClass[]{
-                AbstractPlayer.PlayerClass.IRONCLAD,
-                AbstractPlayer.PlayerClass.THE_SILENT,
-                AbstractPlayer.PlayerClass.DEFECT,
-                AbstractPlayer.PlayerClass.WATCHER
-        };
+        List<AbstractPlayer.PlayerClass> classes = CardCrawlGame.characterManager.getAllCharacters().stream().map(c -> c.chosenClass).collect(Collectors.toList());
 
         for (AbstractRelic.RelicTier tier: tiers) {
             for (AbstractPlayer.PlayerClass c: classes){
