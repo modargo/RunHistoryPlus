@@ -29,6 +29,8 @@ public class RelicFilterScreen implements ScrollBarListener {
     public ArrayList<String> selectedRelics = new ArrayList<>();
     public boolean isShowing = false;
     public final int RELICS_PER_ROW = 7;
+    private static final float SPACING = 84.0f;
+    private static final int VIEW_WINDOW = 400;
     ModLabeledToggleButton orFilterToggle;
     public boolean isOrFilterEnabled;
 
@@ -76,9 +78,9 @@ public class RelicFilterScreen implements ScrollBarListener {
         int y = InputHelper.mY;
         if (!this.grabbedScreen) {
             if (InputHelper.scrolledDown) {
-                this.scrollTargetY += Settings.SCROLL_SPEED / ((Settings.SCROLL_SPEED / RELICS_PER_ROW) - 1);
+                this.scrollTargetY += Settings.SCROLL_SPEED;
             } else if (InputHelper.scrolledUp) {
-                this.scrollTargetY -= Settings.SCROLL_SPEED / ((Settings.SCROLL_SPEED / RELICS_PER_ROW) - 1);
+                this.scrollTargetY -= Settings.SCROLL_SPEED;
             }
             if (InputHelper.justClickedLeft) {
                 this.grabbedScreen = true;
@@ -106,8 +108,10 @@ public class RelicFilterScreen implements ScrollBarListener {
     }
 
     private void calculateScrollBounds() {
-        this.scrollUpperBound = 100.0F * Settings.yScale;
-        this.scrollLowerBound = 0F * Settings.yScale;
+        int rows = (this.relicUIObjects.size() + RELICS_PER_ROW - 1) / RELICS_PER_ROW;
+        float upper = (SPACING * rows) - VIEW_WINDOW;
+        this.scrollUpperBound = upper;
+        this.scrollLowerBound = 0F;
     }
 
     private void resetScrolling() {
@@ -152,14 +156,12 @@ public class RelicFilterScreen implements ScrollBarListener {
         float left = 410.0f;
         float top = 587.0f;
 
-        float spacing = 84.0f;
-
         int ix = 0;
         int iy = 0;
 
         for (AbstractRelic relic : relics) {
-            float tx = left + ix * spacing;
-            float ty = top - iy * spacing;
+            float tx = left + ix * SPACING;
+            float ty = top - iy * SPACING;
 
             relicUIObjects.put(relic.relicId, new RelicUIObject(this, relic, tx, ty));
 
@@ -203,9 +205,10 @@ public class RelicFilterScreen implements ScrollBarListener {
     public void renderForeground(SpriteBatch sb) {
         sb.setColor(Color.WHITE);
 
+        int viewStart = 200;
         for (RelicUIObject relicUIObject : relicUIObjects.values()){
-            if (relicUIObject.getScrollPosition() > ((this.scrollLowerBound + 200) * Settings.yScale) &&
-                    relicUIObject.getScrollPosition() < ((this.scrollUpperBound + 500) * Settings.yScale)){
+            if (relicUIObject.getScrollPosition() > viewStart * Settings.yScale &&
+                    relicUIObject.getScrollPosition() < (viewStart + VIEW_WINDOW) * Settings.yScale){
                 relicUIObject.render(sb);
             }
         }

@@ -38,7 +38,7 @@ public class RelicUIObject {
     }
 
     public void scroll(float scrollY) {
-        this.scroll = scrollY * ((Settings.SCROLL_SPEED / parent.RELICS_PER_ROW) - 1);
+        this.scroll = scrollY;
     }
 
     public float getScrollPosition(){
