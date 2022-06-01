@@ -1,4 +1,4 @@
-package runhistoryplus.ui;
+package runhistoryplus.ui.filters;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;

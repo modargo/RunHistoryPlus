@@ -1,6 +1,5 @@
-package runhistoryplus.ui;
+package runhistoryplus.ui.filters;
 
-import basemod.ModLabeledToggleButton;
 import basemod.ModToggleButton;
 import basemod.ReflectionHacks;
 import com.badlogic.gdx.graphics.Color;

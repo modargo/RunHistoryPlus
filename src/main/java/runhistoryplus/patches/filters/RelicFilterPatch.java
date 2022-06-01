@@ -1,4 +1,4 @@
-package runhistoryplus.patches;
+package runhistoryplus.patches.filters;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
@@ -7,8 +7,8 @@ import com.megacrit.cardcrawl.screens.runHistory.RunHistoryScreen;
 import com.megacrit.cardcrawl.screens.stats.RunData;
 import javassist.CannotCompileException;
 import javassist.CtBehavior;
-import runhistoryplus.ui.ActionButton;
-import runhistoryplus.ui.RelicFilterScreen;
+import runhistoryplus.ui.filters.ActionButton;
+import runhistoryplus.ui.filters.RelicFilterScreen;
 
 import java.util.ArrayList;
 

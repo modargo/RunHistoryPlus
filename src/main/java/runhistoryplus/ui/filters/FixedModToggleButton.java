@@ -1,4 +1,4 @@
-package runhistoryplus.ui;
+package runhistoryplus.ui.filters;
 
 import basemod.IUIElement;
 import basemod.ModPanel;
