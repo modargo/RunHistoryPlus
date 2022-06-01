@@ -219,9 +219,9 @@ public class RelicFilterScreen implements ScrollBarListener {
         this.scrollBar.render(sb);
 
         // Title text
-        float titleLeft = 386.0f;
-        float titleBottom = 819.0f;
-        FontHelper.renderFontLeftDownAligned(sb, ExtraFonts.configTitleFont(), TEXT[0], titleLeft * Settings.xScale, titleBottom * Settings.yScale, Settings.GOLD_COLOR);
+        float titleLeft = this.getUILeft() + 70.0f * Settings.xScale;
+        float titleBottom = this.getUIBottom() + (TEX_BG.getHeight() - 106.0f) * Settings.yScale;
+        FontHelper.renderFontLeftDownAligned(sb, ExtraFonts.configTitleFont(), TEXT[0], titleLeft, titleBottom, Settings.GOLD_COLOR);
         float infoLeft = 1160.0f;
         float infoTopMain = 640.0f;
         float infoTopControls = 472.0f;
@@ -276,8 +276,8 @@ public class RelicFilterScreen implements ScrollBarListener {
         // Draw our screen texture in the center
         sb.setColor(Color.WHITE);
         sb.draw(TEX_BG,
-                (Settings.WIDTH - (TEX_BG.getWidth() * Settings.xScale)) * 0.5f,
-                (Settings.HEIGHT - (TEX_BG.getHeight() * Settings.yScale)) * 0.5f,
+                this.getUILeft(),
+                this.getUIBottom(),
                 TEX_BG.getWidth() * Settings.xScale,
                 TEX_BG.getHeight() * Settings.yScale
         );
@@ -317,6 +317,14 @@ public class RelicFilterScreen implements ScrollBarListener {
         this.onLoadSelectedRelics.addAll(this.selectedRelics);
         this.onLoadOrFilterValue = this.isOrFilterEnabled;
         this.orFilterToggle.toggle.enabled = this.onLoadOrFilterValue;
+    }
+
+    private float getUILeft() {
+        return (Settings.WIDTH - (TEX_BG.getWidth() * Settings.xScale)) * 0.5f;
+    }
+
+    private float getUIBottom() {
+        return (Settings.HEIGHT - (TEX_BG.getHeight() * Settings.yScale)) * 0.5f;
     }
 
     // --------------------------------------------------------------------------------
