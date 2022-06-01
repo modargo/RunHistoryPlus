@@ -32,7 +32,7 @@ public class RelicFilterScreen implements ScrollBarListener {
     private static final int RELICS_PER_ROW = 7;
     private static final float SPACING = 84.0f;
     private static final int VIEW_WINDOW = 400;
-    private ModLabeledToggleButton orFilterToggle;
+    private FixedModLabeledToggleButton orFilterToggle;
     public boolean isOrFilterEnabled;
 
     // values to check to reload the runs
@@ -172,7 +172,7 @@ public class RelicFilterScreen implements ScrollBarListener {
             }
         }
 
-        orFilterToggle = new ModLabeledToggleButton(TEXT[3],
+        orFilterToggle = new FixedModLabeledToggleButton(TEXT[3],
                 INFO_LEFT,         // NOTE: no scaling! (ModLabeledToggleButton scales later)
                 INFO_BOTTOM_CHECK, // same as above
                 Settings.CREAM_COLOR,
