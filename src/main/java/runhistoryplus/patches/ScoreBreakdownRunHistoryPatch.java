@@ -166,9 +166,12 @@ public class ScoreBreakdownRunHistoryPatch {
     @SuppressWarnings("unchecked")
     private static String getTooltipText(RunHistoryScreen screen) throws NoSuchFieldException, IllegalAccessException {
         RunData runData = ReflectionHacks.getPrivate(screen, RunHistoryScreen.class, "viewedRun");
+        if (runData == null) {
+            return null;
+        }
         Field scoreBreakdownField = runData.getClass().getField("score_breakdown");
         List<String> scoreBreakdown = (List<String>)scoreBreakdownField.get(runData);
-        if (scoreBreakdownField == null || scoreBreakdown == null || scoreBreakdown.isEmpty()) {
+        if (scoreBreakdown == null || scoreBreakdown.isEmpty()) {
             return null;
         }
         return String.join(" NL ", scoreBreakdown);
