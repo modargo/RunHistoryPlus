@@ -94,7 +94,7 @@ public class ScoreBreakdownRunHistoryPatch {
         public static void insertEarlyVictoryStatCalcVictory(VictoryScreen __instance) {
             // both methods are called twice now, but this shouldn't cause any problems
             ReflectionHacks.privateMethod(GameOverScreen.class, "calculateUnlockProgress").invoke(__instance);
-            ReflectionHacks.privateMethod(DeathScreen.class, "createGameOverStats").invoke(__instance);
+            ReflectionHacks.privateMethod(VictoryScreen.class, "createGameOverStats").invoke(__instance);
         }
 
         public static class Locator extends SpireInsertLocator {
