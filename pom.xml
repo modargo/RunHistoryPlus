@@ -11,8 +11,32 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <Steam.path>C:/Program Files (x86)/Steam/steamapps</Steam.path>
     </properties>
+
+    <profiles>
+        <profile>
+            <id>Windows</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
+            <properties>
+                <Steam.path>C:/Program Files (x86)/Steam/steamapps</Steam.path>
+            </properties>
+        </profile>
+        <profile>
+            <id>Linux</id>
+            <activation>
+                <os>
+                    <family>Unix</family>
+                </os>
+            </activation>
+            <properties>
+                <Steam.path>${env.HOME}/.local/share/Steam/steamapps</Steam.path>
+            </properties>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
