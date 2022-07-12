@@ -24,6 +24,11 @@
       "#ySkipped #yfor #ykey: "
     ]
   },
+  "RunHistoryPlus:GreenKeyTaken": {
+    "TEXT": [
+      "#yObtained #yEmerald #yKey"
+    ]
+  },
   "RunHistoryPlus:FloorExitPlaytime": {
     "TEXT": [
       "#bTime #bspent: #b{0}"
