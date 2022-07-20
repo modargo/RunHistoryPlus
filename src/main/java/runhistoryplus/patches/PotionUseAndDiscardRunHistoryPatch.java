@@ -3,9 +3,11 @@ package runhistoryplus.patches;
 import basemod.ReflectionHacks;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
+import com.megacrit.cardcrawl.actions.common.ObtainPotionAction;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.metrics.MetricData;
 import com.megacrit.cardcrawl.metrics.Metrics;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
@@ -17,6 +19,8 @@ import com.megacrit.cardcrawl.screens.stats.RunData;
 import com.megacrit.cardcrawl.ui.panels.PotionPopUp;
 import com.megacrit.cardcrawl.ui.panels.TopPanel;
 import javassist.*;
+import javassist.expr.ExprEditor;
+import javassist.expr.MethodCall;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import runhistoryplus.savables.PotionDiscardLog;
@@ -176,6 +180,35 @@ public class PotionUseAndDiscardRunHistoryPatch {
                 Matcher matcher = new Matcher.MethodCallMatcher(AbstractPotion.class, "canDiscard");
                 Matcher finalMatcher = new Matcher.MethodCallMatcher(TopPanel.class, "destroyPotion");
                 return LineFinder.findInOrder(ctMethodToPatch, Collections.singletonList(matcher), finalMatcher);
+            }
+        }
+    }
+
+    @SpirePatch(clz = ObtainPotionAction.class, method = "update")
+    public static class ObtainPotionActionAddLogging {
+        public static class ObtainPotionActionAddLoggingExprEditor extends ExprEditor {
+            @Override
+            public void edit(MethodCall methodCall) throws CannotCompileException {
+                if (methodCall.getMethodName().equals("obtainPotion")) {
+                    methodCall.replace("{ $_ = $proceed($$); runhistoryplus.patches.PotionUseAndDiscardRunHistoryPatch.ObtainPotionActionAddLogging.playerObtainPotionWithLogging($_, this.potion); }");
+                }
+            }
+        }
+
+        @SpireInstrumentPatch
+        public static ExprEditor obtainPotionActionAddLoggingPatch() {
+            return new ObtainPotionActionAddLoggingExprEditor();
+        }
+
+        public static void playerObtainPotionWithLogging(boolean isPotionObtained, final AbstractPotion potion) {
+            if (isPotionObtained) {
+                CardCrawlGame.metricData.addPotionObtainData(potion);
+            }
+            else {
+                List<String> l = PotionDiscardLog.potion_discard_per_floor.get(PotionDiscardLog.potion_discard_per_floor.size() - 1);
+                if (l != null) {
+                    l.add(potion.ID);
+                }
             }
         }
     }
