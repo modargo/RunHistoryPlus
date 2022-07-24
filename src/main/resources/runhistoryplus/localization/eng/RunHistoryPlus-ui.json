@@ -29,6 +29,11 @@
       "#yObtained #yEmerald #yKey"
     ]
   },
+  "RunHistoryPlus:LessonLearned": {
+    "TEXT": [
+      "#bLesson #bLearned "
+    ]
+  },
   "RunHistoryPlus:FloorExitPlaytime": {
     "TEXT": [
       "#bTime #bspent: #b{0}"
