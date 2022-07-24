@@ -13,6 +13,28 @@ public class PotionUseAndDiscardTooltip {
     private static final String TEXT_OBTAIN_TYPE_POTION = TOOLTIP_TEXT[24];
 
     public static void build(RunPathElement element, StringBuilder sb) {
+        List<String> potionsObtainedAlchemize = PotionUseAndDiscardRunHistoryPatch.PotionsObtainedAlchemizeField.potionsObtainedAlchemize.get(element);
+        if (potionsObtainedAlchemize != null && !potionsObtainedAlchemize.isEmpty()) {
+            if (sb.length() > 0) {
+                sb.append(" NL ");
+            }
+            sb.append(TEXT[2]);
+            for (String potionID : potionsObtainedAlchemize) {
+                sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_POTION).append(PotionHelper.getPotion(potionID).name);
+            }
+        }
+
+        List<String> potionsObtainedEntropicBrew = PotionUseAndDiscardRunHistoryPatch.PotionsObtainedEntropicBrewField.potionsObtainedEntropicBrew.get(element);
+        if (potionsObtainedEntropicBrew != null && !potionsObtainedEntropicBrew.isEmpty()) {
+            if (sb.length() > 0) {
+                sb.append(" NL ");
+            }
+            sb.append(TEXT[3]);
+            for (String potionID : potionsObtainedEntropicBrew) {
+                sb.append(" NL ").append(" TAB ").append(TEXT_OBTAIN_TYPE_POTION).append(PotionHelper.getPotion(potionID).name);
+            }
+        }
+
         List<String> potionUse = PotionUseAndDiscardRunHistoryPatch.PotionUseField.potionUse.get(element);
         if (potionUse != null && !potionUse.isEmpty()) {
             if (sb.length() > 0) {

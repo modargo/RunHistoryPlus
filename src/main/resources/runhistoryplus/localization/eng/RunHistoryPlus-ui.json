@@ -16,7 +16,9 @@
   "RunHistoryPlus:PotionUseAndDiscard": {
     "TEXT": [
       "#yUsed: ",
-      "#yDiscarded: "
+      "#yDiscarded: ",
+      "#yObtained #yfrom #yAlchemize:",
+      "#yObtained #yfrom #yEntropic #yBrew:"
     ]
   },
   "RunHistoryPlus:BlueKeyRelicSkipped": {
