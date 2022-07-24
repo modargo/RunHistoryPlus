@@ -204,12 +204,6 @@ public class PotionUseAndDiscardRunHistoryPatch {
             if (isPotionObtained) {
                 CardCrawlGame.metricData.addPotionObtainData(potion);
             }
-            else {
-                List<String> l = PotionDiscardLog.potion_discard_per_floor.get(PotionDiscardLog.potion_discard_per_floor.size() - 1);
-                if (l != null) {
-                    l.add(potion.ID);
-                }
-            }
         }
     }
 }
