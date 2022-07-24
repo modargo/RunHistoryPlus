@@ -34,7 +34,7 @@ public class ScoreBreakdownRunHistoryPatch {
     private static String scoreHeading;
 
     private static void createScoreBreakdown(ArrayList<GameOverStat> stats) {
-        scoreBreakdown = new ArrayList<String>();
+        scoreBreakdown = new ArrayList<>();
         for (GameOverStat stat : stats) {
             if (stat.label == null) {
                 break;
@@ -75,7 +75,7 @@ public class ScoreBreakdownRunHistoryPatch {
         public static class Locator extends SpireInsertLocator {
             public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
                 Matcher matcher = new Matcher.MethodCallMatcher(MusicMaster.class, "playTempBgmInstantly");
-                return LineFinder.findInOrder(ctMethodToPatch, new ArrayList<Matcher>(), matcher);
+                return LineFinder.findInOrder(ctMethodToPatch, new ArrayList<>(), matcher);
             }
         }
     }
@@ -100,7 +100,7 @@ public class ScoreBreakdownRunHistoryPatch {
         public static class Locator extends SpireInsertLocator {
             public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
                 Matcher matcher = new Matcher.MethodCallMatcher(VictoryScreen.class, "submitVictoryMetrics");
-                return LineFinder.findInOrder(ctMethodToPatch, new ArrayList<Matcher>(), matcher);
+                return LineFinder.findInOrder(ctMethodToPatch, new ArrayList<>(), matcher);
             }
         }
     }
