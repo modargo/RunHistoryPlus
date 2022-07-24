@@ -25,6 +25,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import runhistoryplus.savables.PotionDiscardLog;
 import runhistoryplus.savables.PotionUseLog;
+import runhistoryplus.savables.PotionsObtainedAlchemizeLog;
+import runhistoryplus.savables.PotionsObtainedEntropicBrewLog;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -39,11 +41,8 @@ public class PotionUseAndDiscardRunHistoryPatch {
         @SpireRawPatch
         public static void addPotionUse(CtBehavior ctBehavior) throws NotFoundException, CannotCompileException {
             CtClass runData = ctBehavior.getDeclaringClass().getClassPool().get(RunData.class.getName());
-
             String fieldSource = "public java.util.List potion_use_per_floor;";
-
             CtField field = CtField.make(fieldSource, runData);
-
             runData.addField(field);
         }
     }
@@ -53,11 +52,30 @@ public class PotionUseAndDiscardRunHistoryPatch {
         @SpireRawPatch
         public static void addPotionDiscard(CtBehavior ctBehavior) throws NotFoundException, CannotCompileException {
             CtClass runData = ctBehavior.getDeclaringClass().getClassPool().get(RunData.class.getName());
-
             String fieldSource = "public java.util.List potion_discard_per_floor;";
-
             CtField field = CtField.make(fieldSource, runData);
+            runData.addField(field);
+        }
+    }
 
+    @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
+    public static class PotionsObtainedPerFloorAlchemizeField {
+        @SpireRawPatch
+        public static void addPotionsObtainedAlchemize(CtBehavior ctBehavior) throws NotFoundException, CannotCompileException {
+            CtClass runData = ctBehavior.getDeclaringClass().getClassPool().get(RunData.class.getName());
+            String fieldSource = "public java.util.List potions_obtained_alchemize;";
+            CtField field = CtField.make(fieldSource, runData);
+            runData.addField(field);
+        }
+    }
+
+    @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
+    public static class PotionsObtainedPerFloorEntropicBrewField {
+        @SpireRawPatch
+        public static void addPotionsObtainedEntropicBrew(CtBehavior ctBehavior) throws NotFoundException, CannotCompileException {
+            CtClass runData = ctBehavior.getDeclaringClass().getClassPool().get(RunData.class.getName());
+            String fieldSource = "public java.util.List potions_obtained_entropic_brew;";
+            CtField field = CtField.make(fieldSource, runData);
             runData.addField(field);
         }
     }
@@ -71,6 +89,8 @@ public class PotionUseAndDiscardRunHistoryPatch {
         public static void initializePotionUseAndDiscardPerFloor() {
             PotionUseLog.potion_use_per_floor = new ArrayList<>();
             PotionDiscardLog.potion_discard_per_floor = new ArrayList<>();
+            PotionsObtainedAlchemizeLog.potions_obtained_alchemize = new ArrayList<>();
+            PotionsObtainedEntropicBrewLog.potions_obtained_entropic_brew = new ArrayList<>();
         }
     }
 
@@ -86,6 +106,12 @@ public class PotionUseAndDiscardRunHistoryPatch {
                 if (PotionDiscardLog.potion_discard_per_floor != null) {
                     PotionDiscardLog.potion_discard_per_floor.add(new ArrayList<>());
                 }
+                if (PotionsObtainedAlchemizeLog.potions_obtained_alchemize != null) {
+                    PotionsObtainedAlchemizeLog.potions_obtained_alchemize.add(new ArrayList<>());
+                }
+                if (PotionsObtainedEntropicBrewLog.potions_obtained_entropic_brew != null) {
+                    PotionsObtainedEntropicBrewLog.potions_obtained_entropic_brew.add(new ArrayList<>());
+                }
             }
         }
     }
@@ -98,6 +124,10 @@ public class PotionUseAndDiscardRunHistoryPatch {
                     .invoke(__instance, "potion_use_per_floor", PotionUseLog.potion_use_per_floor);
             ReflectionHacks.privateMethod(Metrics.class, "addData", Object.class, Object.class)
                     .invoke(__instance, "potion_discard_per_floor", PotionDiscardLog.potion_discard_per_floor);
+            ReflectionHacks.privateMethod(Metrics.class, "addData", Object.class, Object.class)
+                    .invoke(__instance, "potions_obtained_alchemize", PotionsObtainedAlchemizeLog.potions_obtained_alchemize);
+            ReflectionHacks.privateMethod(Metrics.class, "addData", Object.class, Object.class)
+                    .invoke(__instance, "potions_obtained_entropic_brew", PotionsObtainedEntropicBrewLog.potions_obtained_entropic_brew);
         }
     }
 
@@ -109,6 +139,16 @@ public class PotionUseAndDiscardRunHistoryPatch {
     @SpirePatch(clz = RunPathElement.class, method = SpirePatch.CLASS)
     public static class PotionDiscardField {
         public static final SpireField<List<String>> potionDiscard = new SpireField<>(() -> null);
+    }
+
+    @SpirePatch(clz = RunPathElement.class, method = SpirePatch.CLASS)
+    public static class PotionsObtainedAlchemizeField {
+        public static final SpireField<List<String>> potionsObtainedAlchemize = new SpireField<>(() -> null);
+    }
+
+    @SpirePatch(clz = RunPathElement.class, method = SpirePatch.CLASS)
+    public static class PotionsObtainedEntropicBrewField {
+        public static final SpireField<List<String>> potionsObtainedEntropicBrew = new SpireField<>(() -> null);
     }
 
     @SpirePatch(clz = RunHistoryPath.class, method = "setRunData")
@@ -137,6 +177,30 @@ public class PotionUseAndDiscardRunHistoryPatch {
                 }
                 else {
                     logger.warn("Unrecognized potion_discard_per_floor data");
+                }
+            }
+
+            Field field3 = newData.getClass().getField("potions_obtained_alchemize");
+            List potions_obtained_alchemize = (List)field3.get(newData);
+            if (potions_obtained_alchemize != null && i < potions_obtained_alchemize.size()) {
+                Object potionsObtained = potions_obtained_alchemize.get(i);
+                if (potionsObtained instanceof List) {
+                    PotionsObtainedAlchemizeField.potionsObtainedAlchemize.set(element, (List<String>)potionsObtained);
+                }
+                else {
+                    logger.warn("Unrecognized potions_obtained_alchemize data");
+                }
+            }
+
+            Field field4 = newData.getClass().getField("potions_obtained_entropic_brew");
+            List potions_obtained_entropic_brew = (List)field4.get(newData);
+            if (potions_obtained_entropic_brew != null && i < potions_obtained_entropic_brew.size()) {
+                Object potionsObtained = potions_obtained_entropic_brew.get(i);
+                if (potionsObtained instanceof List) {
+                    PotionsObtainedEntropicBrewField.potionsObtainedEntropicBrew.set(element, (List<String>)potionsObtained);
+                }
+                else {
+                    logger.warn("Unrecognized potions_obtained_entropic_brew data");
                 }
             }
         }
