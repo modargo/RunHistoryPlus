@@ -21,15 +21,15 @@ public class FixedModToggleButton implements IUIElement {
     private static final float TOGGLE_Y_DELTA = 0.0F;
     private static final float TOGGLE_X_EXTEND = 12.0F;
     private static final float HB_WIDTH_EXTENDED = 200.0F;
-    private Consumer<FixedModToggleButton> toggle;
-    private Hitbox hb;
+    private final Consumer<FixedModToggleButton> toggle;
+    private final Hitbox hb;
     private float x;
     private float y;
-    private float w;
-    private float h;
-    private boolean extendedHitbox;
+    private final float w;
+    private final float h;
+    private final boolean extendedHitbox;
     public boolean enabled;
-    public ModPanel parent;
+    public final ModPanel parent;
 
     public FixedModToggleButton(float xPos, float yPos, ModPanel p, Consumer<FixedModToggleButton> c) {
         this(xPos, yPos, false, true, p, c);

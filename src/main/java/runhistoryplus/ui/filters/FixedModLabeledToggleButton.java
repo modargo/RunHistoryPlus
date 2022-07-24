@@ -14,8 +14,8 @@ import java.util.function.Consumer;
 public class FixedModLabeledToggleButton implements IUIElement {
     private static final float TEXT_X_OFFSET = 40.0F;
     private static final float TEXT_Y_OFFSET = 8.0F;
-    public FixedModToggleButton toggle;
-    public FixedModLabel text;
+    public final FixedModToggleButton toggle;
+    public final FixedModLabel text;
 
     public FixedModLabeledToggleButton(String labelText, float xPos, float yPos, Color color, BitmapFont font, boolean enabled, ModPanel p, Consumer<FixedModLabel> labelUpdate, Consumer<FixedModToggleButton> c) {
         this.toggle = new FixedModToggleButton(xPos, yPos, enabled, false, p, c);

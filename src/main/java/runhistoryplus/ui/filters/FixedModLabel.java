@@ -13,13 +13,13 @@ import java.util.function.Consumer;
 // between Settings.xScale and Settings.yScale. This is fine at 16:9, since that's the game's native resolution ratio,
 // but increasing broken the further away you get from 16:9
 public class FixedModLabel implements IUIElement {
-    private Consumer<FixedModLabel> update;
-    public ModPanel parent;
-    public String text;
+    private final Consumer<FixedModLabel> update;
+    public final ModPanel parent;
+    public final String text;
     public float x;
     public float y;
-    public Color color;
-    public BitmapFont font;
+    public final Color color;
+    public final BitmapFont font;
 
     public FixedModLabel(String labelText, float xPos, float yPos, ModPanel p, Consumer<FixedModLabel> updateFunc) {
         this(labelText, xPos, yPos, Color.WHITE, FontHelper.buttonLabelFont, p, updateFunc);
