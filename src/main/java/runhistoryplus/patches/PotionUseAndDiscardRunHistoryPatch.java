@@ -4,6 +4,7 @@ import basemod.ReflectionHacks;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
 import com.megacrit.cardcrawl.actions.common.ObtainPotionAction;
+import com.megacrit.cardcrawl.cards.green.Alchemize;
 import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
@@ -11,6 +12,7 @@ import com.megacrit.cardcrawl.metrics.MetricData;
 import com.megacrit.cardcrawl.metrics.Metrics;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
+import com.megacrit.cardcrawl.potions.EntropicBrew;
 import com.megacrit.cardcrawl.potions.FairyPotion;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import com.megacrit.cardcrawl.screens.runHistory.RunHistoryPath;
@@ -18,9 +20,11 @@ import com.megacrit.cardcrawl.screens.runHistory.RunPathElement;
 import com.megacrit.cardcrawl.screens.stats.RunData;
 import com.megacrit.cardcrawl.ui.panels.PotionPopUp;
 import com.megacrit.cardcrawl.ui.panels.TopPanel;
+import com.megacrit.cardcrawl.vfx.ObtainPotionEffect;
 import javassist.*;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
+import javassist.expr.NewExpr;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import runhistoryplus.savables.PotionDiscardLog;
@@ -35,7 +39,7 @@ import java.util.List;
 
 public class PotionUseAndDiscardRunHistoryPatch {
     private static final Logger logger = LogManager.getLogger(PotionUseAndDiscardRunHistoryPatch.class.getName());
-    
+
     @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
     public static class PotionUsePerFloorField {
         @SpireRawPatch
@@ -248,13 +252,29 @@ public class PotionUseAndDiscardRunHistoryPatch {
         }
     }
 
+    public static void obtainPotionAlchemizeOrEntropicBrew(final AbstractPotion potion, String source) {
+        switch(source) {
+            case "Alchemize":
+                if (PotionsObtainedAlchemizeLog.potions_obtained_alchemize != null && AbstractDungeon.floorNum > 0) {
+                    PotionsObtainedAlchemizeLog.potions_obtained_alchemize.get(PotionsObtainedAlchemizeLog.potions_obtained_alchemize.size() - 1).add(potion.ID);
+                }
+                break;
+            case "EntropicBrew":
+                if (PotionsObtainedEntropicBrewLog.potions_obtained_entropic_brew != null && AbstractDungeon.floorNum > 0) {
+                    PotionsObtainedEntropicBrewLog.potions_obtained_entropic_brew.get(PotionsObtainedEntropicBrewLog.potions_obtained_entropic_brew.size() - 1).add(potion.ID);
+                }
+                break;
+        }
+    }
+
     @SpirePatch(clz = ObtainPotionAction.class, method = "update")
     public static class ObtainPotionActionAddLogging {
         public static class ObtainPotionActionAddLoggingExprEditor extends ExprEditor {
             @Override
             public void edit(MethodCall methodCall) throws CannotCompileException {
                 if (methodCall.getMethodName().equals("obtainPotion")) {
-                    methodCall.replace("{ $_ = $proceed($$); runhistoryplus.patches.PotionUseAndDiscardRunHistoryPatch.ObtainPotionActionAddLogging.playerObtainPotionWithLogging($_, this.potion); }");
+                    methodCall.replace(String.format("{ $_ = $proceed($$); if ($_) %1$s.obtainPotionAlchemizeOrEntropicBrew(this.potion, (String)%2$s.sourceField.get(this)); }",
+                            PotionUseAndDiscardRunHistoryPatch.class.getName(), ActionSourceField.class.getName()));
                 }
             }
         }
@@ -263,11 +283,66 @@ public class PotionUseAndDiscardRunHistoryPatch {
         public static ExprEditor obtainPotionActionAddLoggingPatch() {
             return new ObtainPotionActionAddLoggingExprEditor();
         }
+    }
 
-        public static void playerObtainPotionWithLogging(boolean isPotionObtained, final AbstractPotion potion) {
-            if (isPotionObtained) {
-                CardCrawlGame.metricData.addPotionObtainData(potion);
+    @SpirePatch(clz = ObtainPotionEffect.class, method = "update")
+    public static class ObtainPotionEffectAddLogging {
+        public static class ObtainPotionEffectAddLoggingExprEditor extends ExprEditor {
+            @Override
+            public void edit(MethodCall methodCall) throws CannotCompileException {
+                if (methodCall.getMethodName().equals("obtainPotion")) {
+                    methodCall.replace(String.format("{ $_ = $proceed($$); if ($_) %1$s.obtainPotionAlchemizeOrEntropicBrew(this.potion, (String)%2$s.sourceField.get(this)); }",
+                            PotionUseAndDiscardRunHistoryPatch.class.getName(), EffectSourceField.class.getName()));
+                }
             }
+        }
+
+        @SpireInstrumentPatch
+        public static ExprEditor obtainPotionEffectAddLoggingPatch() {
+            return new ObtainPotionEffectAddLoggingExprEditor();
+        }
+    }
+
+    @SpirePatch(clz = ObtainPotionAction.class, method = SpirePatch.CLASS)
+    public static class ActionSourceField {
+        public static final SpireField<String> sourceField = new SpireField<>(() -> "");
+    }
+
+    @SpirePatch(clz = ObtainPotionEffect.class, method = SpirePatch.CLASS)
+    public static class EffectSourceField {
+        public static final SpireField<String> sourceField = new SpireField<>(() -> "");
+    }
+
+    @SpirePatch(clz = Alchemize.class, method = "use")
+    public static class AlchemizeExprEditor extends ExprEditor {
+        @Override
+        public void edit(NewExpr newExpr) throws CannotCompileException {
+            if (newExpr.getClassName().equals(ObtainPotionAction.class.getName())) {
+                newExpr.replace(String.format("{ $_ = $proceed($$); %1$s.sourceField.set($_, \"Alchemize\"); }", ActionSourceField.class.getName()));
+            }
+        }
+
+        @SpireInstrumentPatch
+        public static ExprEditor alchemizeExprEditor() {
+            return new AlchemizeExprEditor();
+        }
+    }
+
+    @SpirePatch(clz = EntropicBrew.class, method = "use")
+    public static class EntropicBrewExprEditor extends ExprEditor {
+        @Override
+        public void edit(NewExpr newExpr) throws CannotCompileException {
+            if (newExpr.getClassName().equals(ObtainPotionAction.class.getName())) {
+                newExpr.replace(String.format("{ $_ = $proceed($$); %1$s.sourceField.set($_, \"EntropicBrew\"); }", ActionSourceField.class.getName()));
+            }
+            if (newExpr.getClassName().equals(ObtainPotionEffect.class.getName())) {
+                newExpr.replace(String.format("{ $_ = $proceed($$); %1$s.sourceField.set($_, \"EntropicBrew\"); }", EffectSourceField.class.getName()));
+            }
+        }
+
+        @SpireInstrumentPatch
+        public static ExprEditor entropicBrewExprEditor() {
+            return new EntropicBrewExprEditor();
         }
     }
 }
