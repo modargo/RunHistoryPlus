@@ -37,8 +37,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class PotionUseAndDiscardRunHistoryPatch {
-    private static final Logger logger = LogManager.getLogger(PotionUseAndDiscardRunHistoryPatch.class.getName());
+public class PotionRunHistoryPatch {
+    private static final Logger logger = LogManager.getLogger(PotionRunHistoryPatch.class.getName());
 
     @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
     public static class PotionUsePerFloorField {
@@ -274,7 +274,7 @@ public class PotionUseAndDiscardRunHistoryPatch {
             public void edit(MethodCall methodCall) throws CannotCompileException {
                 if (methodCall.getMethodName().equals("obtainPotion")) {
                     methodCall.replace(String.format("{ $_ = $proceed($$); if ($_) %1$s.obtainPotionAlchemizeOrEntropicBrew(this.potion, (String)%2$s.sourceField.get(this)); }",
-                            PotionUseAndDiscardRunHistoryPatch.class.getName(), ActionSourceField.class.getName()));
+                            PotionRunHistoryPatch.class.getName(), ActionSourceField.class.getName()));
                 }
             }
         }
@@ -292,7 +292,7 @@ public class PotionUseAndDiscardRunHistoryPatch {
             public void edit(MethodCall methodCall) throws CannotCompileException {
                 if (methodCall.getMethodName().equals("obtainPotion")) {
                     methodCall.replace(String.format("{ $_ = $proceed($$); if ($_) %1$s.obtainPotionAlchemizeOrEntropicBrew(this.potion, (String)%2$s.sourceField.get(this)); }",
-                            PotionUseAndDiscardRunHistoryPatch.class.getName(), EffectSourceField.class.getName()));
+                            PotionRunHistoryPatch.class.getName(), EffectSourceField.class.getName()));
                 }
             }
         }

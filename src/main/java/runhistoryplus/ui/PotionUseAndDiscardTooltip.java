@@ -3,7 +3,7 @@ package runhistoryplus.ui;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.helpers.PotionHelper;
 import com.megacrit.cardcrawl.screens.runHistory.RunPathElement;
-import runhistoryplus.patches.PotionUseAndDiscardRunHistoryPatch;
+import runhistoryplus.patches.PotionRunHistoryPatch;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ public class PotionUseAndDiscardTooltip {
     private static final String TEXT_OBTAIN_TYPE_POTION = TOOLTIP_TEXT[24];
 
     public static void build(RunPathElement element, StringBuilder sb) {
-        List<String> potionsObtainedAlchemize = PotionUseAndDiscardRunHistoryPatch.PotionsObtainedAlchemizeField.potionsObtainedAlchemize.get(element);
+        List<String> potionsObtainedAlchemize = PotionRunHistoryPatch.PotionsObtainedAlchemizeField.potionsObtainedAlchemize.get(element);
         if (potionsObtainedAlchemize != null && !potionsObtainedAlchemize.isEmpty()) {
             if (sb.length() > 0) {
                 sb.append(" NL ");
@@ -24,7 +24,7 @@ public class PotionUseAndDiscardTooltip {
             }
         }
 
-        List<String> potionsObtainedEntropicBrew = PotionUseAndDiscardRunHistoryPatch.PotionsObtainedEntropicBrewField.potionsObtainedEntropicBrew.get(element);
+        List<String> potionsObtainedEntropicBrew = PotionRunHistoryPatch.PotionsObtainedEntropicBrewField.potionsObtainedEntropicBrew.get(element);
         if (potionsObtainedEntropicBrew != null && !potionsObtainedEntropicBrew.isEmpty()) {
             if (sb.length() > 0) {
                 sb.append(" NL ");
@@ -35,7 +35,7 @@ public class PotionUseAndDiscardTooltip {
             }
         }
 
-        List<String> potionUse = PotionUseAndDiscardRunHistoryPatch.PotionUseField.potionUse.get(element);
+        List<String> potionUse = PotionRunHistoryPatch.PotionUseField.potionUse.get(element);
         if (potionUse != null && !potionUse.isEmpty()) {
             if (sb.length() > 0) {
                 sb.append(" NL ");
@@ -46,7 +46,7 @@ public class PotionUseAndDiscardTooltip {
             }
         }
 
-        List<String> potionDiscard = PotionUseAndDiscardRunHistoryPatch.PotionDiscardField.potionDiscard.get(element);
+        List<String> potionDiscard = PotionRunHistoryPatch.PotionDiscardField.potionDiscard.get(element);
         if (potionDiscard != null && !potionDiscard.isEmpty()) {
             if (sb.length() > 0) {
                 sb.append(" NL ");
