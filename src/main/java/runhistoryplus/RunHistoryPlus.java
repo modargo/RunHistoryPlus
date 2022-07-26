@@ -42,6 +42,8 @@ public class RunHistoryPlus implements
         BaseMod.addSaveField(NeowCostsSkippedLog.SaveKey, new NeowCostsSkippedLog());
         BaseMod.addSaveField(PotionDiscardLog.SaveKey, new PotionDiscardLog());
         BaseMod.addSaveField(PotionUseLog.SaveKey, new PotionUseLog());
+        BaseMod.addSaveField(PotionsObtainedAlchemizeLog.SaveKey, new PotionsObtainedAlchemizeLog());
+        BaseMod.addSaveField(PotionsObtainedEntropicBrewLog.SaveKey, new PotionsObtainedEntropicBrewLog());
         BaseMod.addSaveField(RewardsSkippedLog.SaveKey, new RewardsSkippedLog());
         BaseMod.addSaveField(ShopContentsLog.SaveKey, new ShopContentsLog());
 
