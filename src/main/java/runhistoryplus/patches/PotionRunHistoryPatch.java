@@ -252,18 +252,28 @@ public class PotionRunHistoryPatch {
         }
     }
 
-    public static void obtainPotionAlchemizeOrEntropicBrew(final AbstractPotion potion, String source) {
-        switch(source) {
-            case "Alchemize":
-                if (PotionsObtainedAlchemizeLog.potions_obtained_alchemize != null && AbstractDungeon.floorNum > 0) {
-                    PotionsObtainedAlchemizeLog.potions_obtained_alchemize.get(PotionsObtainedAlchemizeLog.potions_obtained_alchemize.size() - 1).add(potion.ID);
-                }
-                break;
-            case "EntropicBrew":
-                if (PotionsObtainedEntropicBrewLog.potions_obtained_entropic_brew != null && AbstractDungeon.floorNum > 0) {
-                    PotionsObtainedEntropicBrewLog.potions_obtained_entropic_brew.get(PotionsObtainedEntropicBrewLog.potions_obtained_entropic_brew.size() - 1).add(potion.ID);
-                }
-                break;
+    public enum PotionSource {
+        Alchemize,
+        EntropicBrew
+    }
+
+    public static void obtainPotionAlchemizeOrEntropicBrew(final AbstractPotion potion, PotionSource source) {
+        if (source != null) {
+            switch(source) {
+                case Alchemize:
+                    if (PotionsObtainedAlchemizeLog.potions_obtained_alchemize != null && AbstractDungeon.floorNum > 0) {
+                        PotionsObtainedAlchemizeLog.potions_obtained_alchemize.get(PotionsObtainedAlchemizeLog.potions_obtained_alchemize.size() - 1).add(potion.ID);
+                    }
+                    break;
+                case EntropicBrew:
+                    if (PotionsObtainedEntropicBrewLog.potions_obtained_entropic_brew != null && AbstractDungeon.floorNum > 0) {
+                        PotionsObtainedEntropicBrewLog.potions_obtained_entropic_brew.get(PotionsObtainedEntropicBrewLog.potions_obtained_entropic_brew.size() - 1).add(potion.ID);
+                    }
+                    break;
+                default:
+                    logger.warn("Unrecognized potion source: " + source);
+                    break;
+            }
         }
     }
 
@@ -273,7 +283,7 @@ public class PotionRunHistoryPatch {
             @Override
             public void edit(MethodCall methodCall) throws CannotCompileException {
                 if (methodCall.getMethodName().equals("obtainPotion")) {
-                    methodCall.replace(String.format("{ $_ = $proceed($$); if ($_) %1$s.obtainPotionAlchemizeOrEntropicBrew(this.potion, (String)%2$s.sourceField.get(this)); }",
+                    methodCall.replace(String.format("{ $_ = $proceed($$); if ($_) %1$s.obtainPotionAlchemizeOrEntropicBrew(this.potion, (%1$s.PotionSource)%2$s.sourceField.get(this)); }",
                             PotionRunHistoryPatch.class.getName(), ActionSourceField.class.getName()));
                 }
             }
@@ -291,7 +301,7 @@ public class PotionRunHistoryPatch {
             @Override
             public void edit(MethodCall methodCall) throws CannotCompileException {
                 if (methodCall.getMethodName().equals("obtainPotion")) {
-                    methodCall.replace(String.format("{ $_ = $proceed($$); if ($_) %1$s.obtainPotionAlchemizeOrEntropicBrew(this.potion, (String)%2$s.sourceField.get(this)); }",
+                    methodCall.replace(String.format("{ $_ = $proceed($$); if ($_) %1$s.obtainPotionAlchemizeOrEntropicBrew(this.potion, (%1$s.PotionSource)%2$s.sourceField.get(this)); }",
                             PotionRunHistoryPatch.class.getName(), EffectSourceField.class.getName()));
                 }
             }
@@ -305,12 +315,12 @@ public class PotionRunHistoryPatch {
 
     @SpirePatch(clz = ObtainPotionAction.class, method = SpirePatch.CLASS)
     public static class ActionSourceField {
-        public static final SpireField<String> sourceField = new SpireField<>(() -> "");
+        public static final SpireField<PotionSource> sourceField = new SpireField<>(() -> null);
     }
 
     @SpirePatch(clz = ObtainPotionEffect.class, method = SpirePatch.CLASS)
     public static class EffectSourceField {
-        public static final SpireField<String> sourceField = new SpireField<>(() -> "");
+        public static final SpireField<PotionSource> sourceField = new SpireField<>(() -> null);
     }
 
     @SpirePatch(clz = Alchemize.class, method = "use")
@@ -318,7 +328,8 @@ public class PotionRunHistoryPatch {
         @Override
         public void edit(NewExpr newExpr) throws CannotCompileException {
             if (newExpr.getClassName().equals(ObtainPotionAction.class.getName())) {
-                newExpr.replace(String.format("{ $_ = $proceed($$); %1$s.sourceField.set($_, \"Alchemize\"); }", ActionSourceField.class.getName()));
+                newExpr.replace(String.format("{ $_ = $proceed($$); %1$s.sourceField.set($_, %2$s.PotionSource.Alchemize); }",
+                        ActionSourceField.class.getName(), PotionRunHistoryPatch.class.getName()));
             }
         }
 
@@ -333,10 +344,12 @@ public class PotionRunHistoryPatch {
         @Override
         public void edit(NewExpr newExpr) throws CannotCompileException {
             if (newExpr.getClassName().equals(ObtainPotionAction.class.getName())) {
-                newExpr.replace(String.format("{ $_ = $proceed($$); %1$s.sourceField.set($_, \"EntropicBrew\"); }", ActionSourceField.class.getName()));
+                newExpr.replace(String.format("{ $_ = $proceed($$); %1$s.sourceField.set($_, %2$s.PotionSource.EntropicBrew); }",
+                        ActionSourceField.class.getName(), PotionRunHistoryPatch.class.getName()));
             }
             if (newExpr.getClassName().equals(ObtainPotionEffect.class.getName())) {
-                newExpr.replace(String.format("{ $_ = $proceed($$); %1$s.sourceField.set($_, \"EntropicBrew\"); }", EffectSourceField.class.getName()));
+                newExpr.replace(String.format("{ $_ = $proceed($$); %1$s.sourceField.set($_, %2$s.PotionSource.EntropicBrew); }",
+                        EffectSourceField.class.getName(), PotionRunHistoryPatch.class.getName()));
             }
         }
 
