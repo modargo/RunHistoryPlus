@@ -19,7 +19,7 @@ public class RunTooltipHooks {
         BlueKeyRelicSkippedTooltip.build(element, sb);
         GreenKeyTakenTooltip.build(element, sb);
         FallingOptionsTooltip.build(element, sb);
-        PotionUseAndDiscardTooltip.build(element, sb);
+        PotionTooltip.build(element, sb);
         LessonLearnedTooltip.build(element, sb);
         FloorExitPlaytimeTooltip.build(element, sb);
     }

@@ -90,7 +90,7 @@ public class PotionRunHistoryPatch {
     )
     public static class GenerateSeedsPatch {
         @SpirePostfixPatch
-        public static void initializePotionUseAndDiscardPerFloor() {
+        public static void initializePotion() {
             PotionUseLog.potion_use_per_floor = new ArrayList<>();
             PotionDiscardLog.potion_discard_per_floor = new ArrayList<>();
             PotionsObtainedAlchemizeLog.potions_obtained_alchemize = new ArrayList<>();
@@ -99,9 +99,9 @@ public class PotionRunHistoryPatch {
     }
 
     @SpirePatch(clz = AbstractDungeon.class, method = "nextRoomTransition", paramtypez = { SaveFile.class })
-    public static class NextRoomTransitionAddPotionUseAndDiscardEntryPatch {
+    public static class NextRoomTransitionAddPotionEntryPatch {
         @SpirePrefixPatch
-        public static void nextRoomTransitionAddPotionUseAndDiscardEntryPatch(AbstractDungeon __instance, SaveFile saveFile) {
+        public static void nextRoomTransitionAddPotionEntryPatch(AbstractDungeon __instance, SaveFile saveFile) {
             boolean isLoadingSave = CardCrawlGame.loadingSave && saveFile != null;
             if (!isLoadingSave) {
                 if (PotionUseLog.potion_use_per_floor != null) {
@@ -156,10 +156,10 @@ public class PotionRunHistoryPatch {
     }
 
     @SpirePatch(clz = RunHistoryPath.class, method = "setRunData")
-    public static class AddPotionUseAndDiscardDataPatch {
+    public static class AddPotionDataPatch {
         @SuppressWarnings({"rawtypes", "unchecked"})
         @SpireInsertPatch(locator = Locator.class, localvars = { "element", "i" })
-        public static void addPotionUseAndDiscardData(RunHistoryPath __instance, RunData newData, RunPathElement element, int i) throws NoSuchFieldException, IllegalAccessException {
+        public static void addPotionData(RunHistoryPath __instance, RunData newData, RunPathElement element, int i) throws NoSuchFieldException, IllegalAccessException {
             Field field1 = newData.getClass().getField("potion_use_per_floor");
             List potion_use_per_floor = (List)field1.get(newData);
             if (potion_use_per_floor != null && i < potion_use_per_floor.size()) {

@@ -7,8 +7,8 @@ import runhistoryplus.patches.PotionRunHistoryPatch;
 
 import java.util.List;
 
-public class PotionUseAndDiscardTooltip {
-    private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:PotionUseAndDiscard").TEXT;
+public class PotionTooltip {
+    private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:Potion").TEXT;
     private static final String[] TOOLTIP_TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPathNodes").TEXT;
     private static final String TEXT_OBTAIN_TYPE_POTION = TOOLTIP_TEXT[24];
 
