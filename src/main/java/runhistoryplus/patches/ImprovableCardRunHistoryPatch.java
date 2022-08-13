@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 public class ImprovableCardRunHistoryPatch {
-    private static Map<String, List<Integer>> improvableCardsLog;
     private static final ArrayList<String> improvableCards = new ArrayList<String>() {{
         add(GeneticAlgorithm.ID);
         add(RitualDagger.ID);
@@ -49,13 +48,14 @@ public class ImprovableCardRunHistoryPatch {
     public static class GatherAllDataPatch {
         @SpirePostfixPatch
         public static void gatherAllDataPatch(Metrics __instance, boolean death, boolean trueVictor, MonsterGroup monsters) {
-            improvableCardsLog = new HashMap<>();
+            Map<String, List<Integer>> improvableCardsLog = new HashMap<>();
             for (final AbstractCard card: AbstractDungeon.player.masterDeck.group) {
                 if (improvableCards.contains(card.cardID)) {
-                    if (!improvableCardsLog.containsKey(card.name)) {
-                        improvableCardsLog.put(card.name, new ArrayList<>());
+                    String metricID = card.getMetricID();
+                    if (!improvableCardsLog.containsKey(metricID)) {
+                        improvableCardsLog.put(metricID, new ArrayList<>());
                     }
-                    improvableCardsLog.get(card.name).add(card.misc);
+                    improvableCardsLog.get(metricID).add(card.misc);
                 }
             }
             ReflectionHacks.privateMethod(Metrics.class, "addData", Object.class, Object.class)
@@ -70,8 +70,9 @@ public class ImprovableCardRunHistoryPatch {
             if (improvableCards.contains(addMe.card.cardID)) {
                 Field improvableCardsField = ___viewedRun.getClass().getField("improvable_cards");
                 Map<String, List<Double>> improvableCardsLog = (Map<String, List<Double>>)improvableCardsField.get(___viewedRun);
-                if (improvableCardsLog != null && improvableCardsLog.containsKey(addMe.card.name)) {
-                    Integer value = Collections.max(improvableCardsLog.get(addMe.card.name)).intValue();
+                String metricID = addMe.card.getMetricID();
+                if (improvableCardsLog != null && improvableCardsLog.containsKey(metricID)) {
+                    Integer value = Collections.max(improvableCardsLog.get(metricID)).intValue();
                     addMe.card.baseDamage = value;
                     addMe.card.baseBlock = value;
                 }
