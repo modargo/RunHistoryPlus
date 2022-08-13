@@ -32,6 +32,7 @@ public class ImprovableCardRunHistoryPatch {
         add(GeneticAlgorithm.ID);
         add(RitualDagger.ID);
     }};
+    private static final String[] TEXT = CardCrawlGame.languagePack.getUIString("RunHistoryPlus:ImprovableCards").TEXT;
 
     @SpirePatch(clz = CardCrawlGame.class, method = SpirePatch.CONSTRUCTOR)
     public static class ImprovableCardsField {
@@ -75,6 +76,19 @@ public class ImprovableCardRunHistoryPatch {
                     Integer value = Collections.max(improvableCardsLog.get(metricID)).intValue();
                     addMe.card.baseDamage = value;
                     addMe.card.baseBlock = value;
+                    if (!addMe.card.rawDescription.contains(TEXT[0])) {
+                        ArrayList<Integer> values = new ArrayList<>();
+                        for (Double f : improvableCardsLog.get(metricID)) {
+                            values.add(f.intValue());
+                        }
+                        Collections.sort(values);
+                        addMe.card.rawDescription += TEXT[0] + values.toString();
+                        System.out.println(addMe.card.rawDescription);
+                        addMe.card.initializeDescription();
+                        for (int i = 0; i < addMe.card.description.size(); ++i) {
+                            System.out.println(addMe.card.description.get(i).text);
+                        }
+                    }
                 }
             }
         }
@@ -84,6 +98,15 @@ public class ImprovableCardRunHistoryPatch {
                 Matcher matcher = new Matcher.MethodCallMatcher(CardGroup.class, "addToTop");
                 return LineFinder.findInOrder(ctMethodToPatch, new ArrayList<>(), matcher);
             }
+        }
+    }
+
+    @SpirePatch(clz = AbstractCard.class, method = "makeStatEquivalentCopy")
+    public static class AbstractCardCopyDescriptionPatch {
+        @SpirePostfixPatch
+        public static AbstractCard copyWithdescription(AbstractCard card, AbstractCard __instance) {
+            card.description = __instance.description;
+            return card;
         }
     }
 }
