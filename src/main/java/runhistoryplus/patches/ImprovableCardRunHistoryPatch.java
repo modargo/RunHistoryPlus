@@ -2,9 +2,7 @@ package runhistoryplus.patches;
 
 import basemod.ReflectionHacks;
 import com.evacipated.cardcrawl.modthespire.lib.*;
-import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
 import com.megacrit.cardcrawl.cards.AbstractCard;
-import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.blue.GeneticAlgorithm;
 import com.megacrit.cardcrawl.cards.colorless.RitualDagger;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
@@ -64,39 +62,28 @@ public class ImprovableCardRunHistoryPatch {
         }
     }
 
-    @SpirePatch(clz = RunHistoryScreen.class, method = "update")
-    public static class RunHistoryScreenUpdatePatch {
-        @SpireInsertPatch(locator = Locator.class, localvars = "addMe")
-        public static void updateCardsWithFinalValues(RunHistoryScreen __instance, RunData ___viewedRun, TinyCard addMe) throws NoSuchFieldException, IllegalAccessException {
-            if (improvableCards.contains(addMe.card.cardID)) {
-                Field improvableCardsField = ___viewedRun.getClass().getField("improvable_cards");
-                Map<String, List<Double>> improvableCardsLog = (Map<String, List<Double>>)improvableCardsField.get(___viewedRun);
-                String metricID = addMe.card.getMetricID();
-                if (improvableCardsLog != null && improvableCardsLog.containsKey(metricID)) {
-                    Integer value = Collections.max(improvableCardsLog.get(metricID)).intValue();
-                    addMe.card.baseDamage = value;
-                    addMe.card.baseBlock = value;
-                    if (!addMe.card.rawDescription.contains(TEXT[0])) {
+    @SpirePatch(clz = RunHistoryScreen.class, method = "reloadCards")
+    public static class RunHistoryScreenReloadCardsPatch {
+        @SpirePostfixPatch
+        public static void updateCardsWithFinalValues(RunHistoryScreen __instance, RunData ___viewedRun, ArrayList<TinyCard> ___cards) throws NoSuchFieldException, IllegalAccessException {
+            for (TinyCard tCard: ___cards) {
+                if (improvableCards.contains(tCard.card.cardID)) {
+                    Field improvableCardsField = ___viewedRun.getClass().getField("improvable_cards");
+                    Map<String, List<Double>> improvableCardsLog = (Map<String, List<Double>>)improvableCardsField.get(___viewedRun);
+                    String metricID = tCard.card.getMetricID();
+                    if (improvableCardsLog != null && improvableCardsLog.containsKey(metricID)) {
+                        Integer value = Collections.max(improvableCardsLog.get(metricID)).intValue();
+                        tCard.card.baseDamage = value;
+                        tCard.card.baseBlock = value;
                         ArrayList<Integer> values = new ArrayList<>();
-                        for (Double f : improvableCardsLog.get(metricID)) {
-                            values.add(f.intValue());
+                        for (Double val : improvableCardsLog.get(metricID)) {
+                            values.add(val.intValue());
                         }
-                        Collections.sort(values);
-                        addMe.card.rawDescription += TEXT[0] + values.toString();
-                        System.out.println(addMe.card.rawDescription);
-                        addMe.card.initializeDescription();
-                        for (int i = 0; i < addMe.card.description.size(); ++i) {
-                            System.out.println(addMe.card.description.get(i).text);
-                        }
+                        Collections.sort(values, Collections.reverseOrder());
+                        tCard.card.rawDescription += TEXT[0] + values.toString();
+                        tCard.card.initializeDescription();
                     }
                 }
-            }
-        }
-
-        public static class Locator extends SpireInsertLocator {
-            public int[] Locate(CtBehavior ctMethodToPatch) throws CannotCompileException, PatchingException {
-                Matcher matcher = new Matcher.MethodCallMatcher(CardGroup.class, "addToTop");
-                return LineFinder.findInOrder(ctMethodToPatch, new ArrayList<>(), matcher);
             }
         }
     }
