@@ -3,6 +3,7 @@ package runhistoryplus.patches;
 import basemod.ReflectionHacks;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.cards.blue.GeneticAlgorithm;
 import com.megacrit.cardcrawl.cards.colorless.RitualDagger;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
@@ -11,6 +12,7 @@ import com.megacrit.cardcrawl.metrics.Metrics;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
 import com.megacrit.cardcrawl.screens.runHistory.RunHistoryScreen;
 import com.megacrit.cardcrawl.screens.runHistory.TinyCard;
+import com.megacrit.cardcrawl.screens.SingleCardViewPopup;
 import com.megacrit.cardcrawl.screens.stats.RunData;
 import javassist.CannotCompileException;
 import javassist.NotFoundException;
@@ -88,12 +90,12 @@ public class ImprovableCardRunHistoryPatch {
         }
     }
 
-    @SpirePatch(clz = AbstractCard.class, method = "makeStatEquivalentCopy")
-    public static class AbstractCardCopyDescriptionPatch {
+    @SpirePatch(clz = SingleCardViewPopup.class, method = "open", paramtypez={AbstractCard.class, CardGroup.class})
+    public static class SingleCardViewPopupCopyCardDescriptionPatch {
         @SpirePostfixPatch
-        public static AbstractCard copyWithdescription(AbstractCard card, AbstractCard __instance) {
-            card.description = __instance.description;
-            return card;
+        public static void copyDescription(SingleCardViewPopup __instance, AbstractCard card) {
+            AbstractCard copy = ReflectionHacks.getPrivate(__instance, SingleCardViewPopup.class, "card");
+            copy.description = card.description;
         }
     }
 }
