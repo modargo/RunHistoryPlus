@@ -10,6 +10,7 @@ import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.metrics.Metrics;
 import com.megacrit.cardcrawl.monsters.MonsterGroup;
+import com.megacrit.cardcrawl.screens.mainMenu.MainMenuScreen;
 import com.megacrit.cardcrawl.screens.runHistory.RunHistoryScreen;
 import com.megacrit.cardcrawl.screens.runHistory.TinyCard;
 import com.megacrit.cardcrawl.screens.SingleCardViewPopup;
@@ -96,8 +97,10 @@ public class ImprovableCardRunHistoryPatch {
     public static class SingleCardViewPopupCopyCardDescriptionPatch {
         @SpirePostfixPatch
         public static void copyDescription(SingleCardViewPopup __instance, AbstractCard card) {
-            AbstractCard copy = ReflectionHacks.getPrivate(__instance, SingleCardViewPopup.class, "card");
-            copy.description = card.description;
+            if (AbstractDungeon.player == null && CardCrawlGame.mainMenuScreen != null && CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.RUN_HISTORY) {
+                AbstractCard copy = ReflectionHacks.getPrivate(__instance, SingleCardViewPopup.class, "card");
+                copy.description = card.description;
+            }
         }
     }
 }
