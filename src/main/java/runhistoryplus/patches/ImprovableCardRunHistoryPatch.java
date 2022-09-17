@@ -84,9 +84,11 @@ public class ImprovableCardRunHistoryPatch {
                         for (Double val : improvableCardsLog.get(metricID)) {
                             values.add(val.intValue());
                         }
-                        values.sort(Collections.reverseOrder());
-                        tCard.card.rawDescription += TEXT[0] + values.stream().map(String::valueOf).collect(Collectors.joining(", "));
-                        tCard.card.initializeDescription();
+                        if (values.size() > 1) {
+                            values.sort(Collections.reverseOrder());
+                            tCard.card.rawDescription += TEXT[0] + values.stream().map(String::valueOf).collect(Collectors.joining(", "));
+                            tCard.card.initializeDescription();
+                        }
                     }
                 }
             }
