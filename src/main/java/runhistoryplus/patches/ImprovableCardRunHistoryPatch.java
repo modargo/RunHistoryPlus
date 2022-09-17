@@ -66,6 +66,7 @@ public class ImprovableCardRunHistoryPatch {
 
     @SpirePatch(clz = RunHistoryScreen.class, method = "reloadCards")
     public static class RunHistoryScreenReloadCardsPatch {
+        @SuppressWarnings({"unchecked", "StringConcatenationInLoop"})
         @SpirePostfixPatch
         public static void updateCardsWithFinalValues(RunHistoryScreen __instance, RunData ___viewedRun, ArrayList<TinyCard> ___cards) throws NoSuchFieldException, IllegalAccessException {
             for (TinyCard tCard: ___cards) {
@@ -74,14 +75,14 @@ public class ImprovableCardRunHistoryPatch {
                     Map<String, List<Double>> improvableCardsLog = (Map<String, List<Double>>)improvableCardsField.get(___viewedRun);
                     String metricID = tCard.card.getMetricID();
                     if (improvableCardsLog != null && improvableCardsLog.containsKey(metricID)) {
-                        Integer value = Collections.max(improvableCardsLog.get(metricID)).intValue();
+                        int value = Collections.max(improvableCardsLog.get(metricID)).intValue();
                         tCard.card.baseDamage = value;
                         tCard.card.baseBlock = value;
                         ArrayList<Integer> values = new ArrayList<>();
                         for (Double val : improvableCardsLog.get(metricID)) {
                             values.add(val.intValue());
                         }
-                        Collections.sort(values, Collections.reverseOrder());
+                        values.sort(Collections.reverseOrder());
                         tCard.card.rawDescription += TEXT[0] + values.toString();
                         tCard.card.initializeDescription();
                     }
