@@ -66,5 +66,10 @@
       "If checked, run history will check if any of the selected Relics were obtained in the run. NL NL If unchecked, run history will require that all of the selected Relics were obtained in the run.",
       "Close"
     ]
+  },
+  "RunHistoryPlus:ImprovableCards": {
+    "TEXT": [
+      " NL Values: "
+    ]
   }
 }
