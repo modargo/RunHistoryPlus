@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ImprovableCardRunHistoryPatch {
     private static final ArrayList<String> improvableCards = new ArrayList<String>() {{
@@ -83,7 +84,7 @@ public class ImprovableCardRunHistoryPatch {
                             values.add(val.intValue());
                         }
                         values.sort(Collections.reverseOrder());
-                        tCard.card.rawDescription += TEXT[0] + values.toString();
+                        tCard.card.rawDescription += TEXT[0] + values.stream().map(String::valueOf).collect(Collectors.joining(", "));
                         tCard.card.initializeDescription();
                     }
                 }
