@@ -71,5 +71,26 @@
     "TEXT": [
       " NL Values: "
     ]
+  },
+  "RunHistoryPlus:SortOptions": {
+    "TEXT": [
+      "Date",
+      "Score",
+      "Run Time",
+      "Relic Count",
+      "Card Count"
+    ],
+    "EXTRA_TEXT": [
+      "Sort:"
+    ]
+  },
+  "RunHistoryPlus:SortDirections": {
+    "TEXT": [
+      "Descending",
+      "Ascending"
+    ],
+    "EXTRA_TEXT": [
+      "Sort Direction:"
+    ]
   }
 }
