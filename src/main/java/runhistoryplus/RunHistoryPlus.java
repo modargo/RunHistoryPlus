@@ -54,6 +54,9 @@ public class RunHistoryPlus implements
     {
         String ret = "localization/";
         switch (language) {
+            case ZHS:
+                ret += "zhs";
+                break;
             default:
                 ret += "eng";
                 break;

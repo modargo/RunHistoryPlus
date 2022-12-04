@@ -1,0 +1,96 @@
+{
+  "RunHistoryPlus:RunHistoryPlusModPanel": {
+    "TEXT": [
+      "显示每层楼层花费的时间"
+    ]
+  },
+  "RunHistoryPlus:NeowBonus": {
+    "TEXT": [
+      "涅奥的祝福",
+      "涅奥的祝福：",
+      "{0}",
+      "{0}，{1}",
+      "#y略过的选项："
+    ]
+  },
+  "RunHistoryPlus:Potion": {
+    "TEXT": [
+      "#y使用：",
+      "#y丢弃：",
+      "#y从炼制药水中获得：",
+      "#y从混沌药水中获得："
+    ]
+  },
+  "RunHistoryPlus:BlueKeyRelicSkipped": {
+    "TEXT": [
+      "#y换成蓝宝石钥匙的遗物："
+    ]
+  },
+  "RunHistoryPlus:GreenKeyTaken": {
+    "TEXT": [
+      "#y获得绿宝石钥匙"
+    ]
+  },
+  "RunHistoryPlus:LessonLearned": {
+    "TEXT": [
+      "#b勤学精进升级： "
+    ]
+  },
+  "RunHistoryPlus:FloorExitPlaytime": {
+    "TEXT": [
+      "#b花费的时间：{0}"
+    ]
+  },
+  "RunHistoryPlus:FallingOptions": {
+    "TEXT": [
+      "#y其余选项："
+    ]
+  },
+  "RunHistoryPlus:MultipleCardRewards": {
+    "TEXT": [
+      " #y（第{0}组）"
+    ]
+  },
+  "RunHistoryPlus:FilterButtons": {
+    "TEXT": [
+      "遗物筛选器"
+    ]
+  },
+  "RunHistoryPlus:RelicFilterScreen": {
+    "TEXT": [
+      "遗物列表",
+      "本筛选器允许你筛选出拥有指定遗物的局次，以供在历史记录中呈现。",
+      "操作方式： NL 左击以反选 NL 右击以单选 NL NL Shift+左击以全选 NL Shift+右击以全部取消 NL Alt+左击以全部反选",
+      "使用“或”代替“且”",
+      "信息",
+      "勾选：包含任一所选遗物的对局即可在历史记录中呈现。 NL NL 不勾选：包含所有所选遗物的对局才能在历史记录中呈现。",
+      "关闭"
+    ]
+  },
+  "RunHistoryPlus:ImprovableCards": {
+    "TEXT": [
+      " NL 最终的值分别为： "
+    ]
+  },
+  "RunHistoryPlus:SortOptions": {
+    "TEXT": [
+      "日期",
+      "分数",
+      "游戏时长",
+      "遗物数量",
+      "卡牌数量"
+    ],
+    "EXTRA_TEXT": [
+      "依据："
+    ]
+  },
+  "RunHistoryPlus:SortDirections": {
+    "TEXT": [
+      "降序",
+      "升序"
+    ],
+    "EXTRA_TEXT": [
+      "　　　　方向："
+    ]
+  }
+}
