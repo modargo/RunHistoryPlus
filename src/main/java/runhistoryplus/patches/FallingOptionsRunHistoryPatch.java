@@ -69,7 +69,7 @@ public class FallingOptionsRunHistoryPatch {
         @SpireInsertPatch(locator = Locator.class, localvars = { "element" })
         public static void addFallingOptionsLogData(RunHistoryPath __instance, RunData newData, RunPathElement element) throws NoSuchFieldException, IllegalAccessException {
             EventStats eventStats = ReflectionHacks.getPrivate(element, RunPathElement.class, "eventStats");
-            if (eventStats != null && eventStats.event_name.equals(Falling.ID)) {
+            if (eventStats != null && eventStats.event_name != null && eventStats.event_name.equals(Falling.ID)) {
                 Field field = newData.getClass().getField("falling_options_log");
                 List<String> fallingOptionsLog = (List<String>)field.get(newData);
                 if (fallingOptionsLog != null) {
