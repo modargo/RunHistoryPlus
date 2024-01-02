@@ -1,8 +1,10 @@
 package runhistoryplus.patches.filters;
+import basemod.ReflectionHacks;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.evacipated.cardcrawl.modthespire.patcher.PatchingException;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
+import com.megacrit.cardcrawl.screens.options.DropdownMenu;
 import com.megacrit.cardcrawl.screens.runHistory.RunHistoryScreen;
 import com.megacrit.cardcrawl.screens.stats.RunData;
 import javassist.CannotCompileException;
@@ -21,10 +23,15 @@ public class RelicFilterPatch {
 
     @SpirePatch(clz= RunHistoryScreen.class, method="render")
     public static class RenderFilteredButton {
-        public static void Postfix(RunHistoryScreen __instance, SpriteBatch sb) {
+        public static void Prefix(RunHistoryScreen __instance, SpriteBatch sb) {
             relicFilterButton.render(sb);
 //            cardFilterButton.render(sb);
+        }
+    }
 
+    @SpirePatch(clz= RunHistoryScreen.class, method="render")
+    public static class RenderScreen {
+        public static void Postfix(RunHistoryScreen __instance, SpriteBatch sb) {
             if (relicScreen.isShowing){
                 relicScreen.render(sb);
             }
@@ -42,7 +49,10 @@ public class RelicFilterPatch {
             relicFilterButton.update();
 //            cardFilterButton.update();
 
-            if (relicFilterButton.hb.clickStarted) {
+            DropdownMenu characterFilter = ReflectionHacks.getPrivate(__instance, RunHistoryScreen.class, "characterFilter");
+            //The character filter can get long enough that it overlaps with this button. Rather than try to unravel all the hitbox logic,
+            //we simply ignore clicks while the character filter dropdown is open. This is consistent with how the Return button behaves.
+            if (relicFilterButton.hb.clickStarted && !characterFilter.isOpen) {
                 relicScreen.show();
             }
             if (relicScreen.isShowing){
