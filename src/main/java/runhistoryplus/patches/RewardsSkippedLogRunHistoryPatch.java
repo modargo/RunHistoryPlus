@@ -66,6 +66,9 @@ public class RewardsSkippedLogRunHistoryPatch {
         @SuppressWarnings("unchecked")
         @SpireInsertPatch(locator = Locator.class, localvars = { "data" })
         public static void rewardSkippedRefreshData(RunHistoryScreen __instance, RunData data) throws NoSuchFieldException, IllegalAccessException {
+            if (data == null) {
+                return;
+            }
             Field field = data.getClass().getField("rewards_skipped");
             List<LinkedTreeMap<String, Object>> rewards_skipped = (List<LinkedTreeMap<String, Object>>)field.get(data);
             if (rewards_skipped == null) {
